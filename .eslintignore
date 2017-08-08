@@ -1,0 +1,5 @@
+# Ignore Node Modules
+**/node_modules
+
+# Ignore any generated content
+coverage/

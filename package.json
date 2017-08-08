@@ -1,0 +1,31 @@
+{
+  "name": "elastic-querybuilder",
+  "version": "0.1.0",
+  "description": "A collection of query builders and composers for Elasticsearch.",
+  "main": "src/index.js",
+  "repository": "https://github.com/Asymmetrik/elastic-querybuilder.git",
+  "contributors": [
+    "Robert Winterbottom <rwinterbottom@asymmetrik.com>"
+  ],
+  "scripts": {
+    
+  },
+  "keywords": [
+    "elasticsearch",
+    "query",
+    "builder",
+    "nodejs",
+    "javascript"
+  ],
+  "jest": {
+    "verbose": true,
+    "collectCoverage": true,
+    "coverageReporters": [ "text" ],
+    "coveragePathIgnorePatterns": [ "<rootDir>/node_modules" ]
+  },
+  "devDependencies": {
+    "eslint": "^4.4.1",
+    "jest": "^20.0.4"
+  },
+  "license": "MIT"
+}
