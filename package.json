@@ -20,7 +20,7 @@
   "jest": {
     "verbose": true,
     "collectCoverage": true,
-    "coverageReporters": [ "lcov", "json" ],
+    "coverageReporters": [ "text", "lcov", "json" ],
     "coveragePathIgnorePatterns": [ "<rootDir>/node_modules" ]
   },
   "devDependencies": {
