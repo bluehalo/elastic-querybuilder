@@ -1,5 +1,8 @@
 # Dependencies
 node_modules
 
+# Generated Content
+coverage
+
 # System Files
 .DS_Store
