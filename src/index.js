@@ -62,6 +62,13 @@ class QueryBuilder extends BooleanBuilder {
 	*/
 	build () {
 
+		// Grab our filters from BooleanBuilder
+		const queries = super.build();
+
+		if (Object.getOwnPropertyNames(queries).length) {
+			applyRawParameter(this.query, { path: 'query', value: queries });
+		}
+
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this.query, param));
 

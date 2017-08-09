@@ -1,9 +1,6 @@
 const QueryBuilder = require('../src/index');
 
-const {
-	// ERRORS,
-	DEFAULTS
-} = require('../src/constants');
+const { DEFAULTS } = require('../src/constants');
 
 const queries = {
 	simple_raw_query: {
@@ -14,6 +11,42 @@ const queries = {
 			bool: {
 				boost: 1.2,
 				minimum_should_match: 1
+			}
+		}
+	},
+	match_none: {
+		from: 0,
+		size: 15,
+		query: {
+			match_none: {}
+		}
+	},
+	simple_boolean_query: {
+		from: 0,
+		size: 15,
+		query: {
+			bool: {
+				boost: 1.2,
+				must: [
+					{ match: { name: 'Kenny' }},
+					{ match: { alias: 'Mysterion' }}
+				]
+			}
+		}
+	},
+	compound_boolean_query: {
+		from: 0,
+		size: 15,
+		query: {
+			bool: {
+				boost: 1.2,
+				must: [
+					{ match: { name: 'Kenny' }},
+					{ match: { alias: 'Mysterion' }}
+				],
+				should: {
+					match_phrase: { most_common_question: 'Who is Mysterion?' }
+				}
 			}
 		}
 	}
@@ -53,6 +86,35 @@ describe('QueryBuilder', () => {
 			.build();
 
 		expect(query).toEqual(queries.simple_raw_query);
+	});
+
+	test('should handle a simple match_none query', () => {
+		const query = new QueryBuilder()
+			.must('match_none')
+			.build();
+
+		expect(query).toEqual(queries.match_none);
+	});
+
+	test('should be able to build a boolean query', () => {
+		const query = new QueryBuilder()
+			.raw({ path: 'query.bool.boost', value: 1.2 })
+			.must('match', 'name', 'Kenny')
+			.must('match', 'alias', 'Mysterion')
+			.build();
+
+		expect(query).toEqual(queries.simple_boolean_query);
+	});
+
+	test('should be able to build a compound boolean query', () => {
+		const query = new QueryBuilder()
+			.raw({ path: 'query.bool.boost', value: 1.2 })
+			.must('match', 'name', 'Kenny')
+			.must('match', 'alias', 'Mysterion')
+			.should('match_phrase', 'most_common_question', 'Who is Mysterion?')
+			.build();
+
+		expect(query).toEqual(queries.compound_boolean_query);
 	});
 
 });
