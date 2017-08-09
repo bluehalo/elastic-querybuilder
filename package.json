@@ -8,7 +8,7 @@
     "Robert Winterbottom <rwinterbottom@asymmetrik.com>"
   ],
   "scripts": {
-    "test": "eslint src; jest;"
+    "test": "set -e; eslint src; jest;"
   },
   "keywords": [
     "elasticsearch",
@@ -20,7 +20,7 @@
   "jest": {
     "verbose": true,
     "collectCoverage": true,
-    "coverageReporters": [ "lcov", "json" ],
+    "coverageReporters": [ "text", "lcov", "json" ],
     "coveragePathIgnorePatterns": [ "<rootDir>/node_modules" ]
   },
   "devDependencies": {
