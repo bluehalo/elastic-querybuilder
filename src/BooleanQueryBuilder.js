@@ -3,7 +3,7 @@ const { ERRORS } = require('./constants');
 
 class BooleanQueryBuilder {
 
-	constructor (options = {}) {
+	constructor () {
 		this._rawParams = [];
 	}
 
