@@ -35,8 +35,12 @@ describe('utils', () => {
 
 		test('should add properties to the object if the path does not yet exist', () => {
 			const south_park = {};
-			applyRawParameter(south_park, { path: 'hare_club_for_men.rivals', value: ['Bill Donahue'] });
-			expect(south_park.hare_club_for_men.rivals).toEqual(['Bill Donahue']);
+			applyRawParameter(south_park, {
+				path: 'hare_club_for_men.rivals',
+				value: ['Bill Donahue', 'Pope Benedict XVI']
+			});
+
+			expect(south_park.hare_club_for_men.rivals).toEqual(['Bill Donahue', 'Pope Benedict XVI']);
 		});
 
 	});
