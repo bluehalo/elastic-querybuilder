@@ -1,12 +1,12 @@
 module.exports.DEFAULTS = {
 	FROM: 0,
-	SIZE: 15,
-	EXPLAIN: false
+	SIZE: 15
 };
 
 module.exports.ERRORS = {
 	RAW: 'Missing arguments, you must provide a path and a value.',
-	APPLY_RAW_PARAMETER: 'Missing arguments, cannot `applyRawParameter` without a value, path, and object to add it to.'
+	APPLY_RAW_PARAMETER: 'Missing arguments, cannot `applyRawParameter` without a value, path, and object to add it to.',
+	NOT_AN_ARRAY: 'Invalid argument type, argument must be of type Array'
 };
 
 module.exports.BOOL = {
