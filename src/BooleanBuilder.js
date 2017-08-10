@@ -4,70 +4,74 @@ const { BOOL } = require('./constants');
 class BooleanBuilder {
 
 	constructor () {
-		this._bool = {
-			[BOOL.MUST]: [],
-			[BOOL.SHOULD]: [],
-			[BOOL.FILTER]: [],
-			[BOOL.MUST_NOT]: []
-		};
+		/**
+		* These filters will be stored as query descriptions. Each push will contain
+		* all the properties needed to generate the actualy query object at a later time.
+		* We do this so it is trivial to filter them for filtered aggregations at a later point.
+		*/
+		this._bool = [];
 	}
 
 	/**
 	* @description Add must boolean queries
-	* @param {string} type - Type of query to perform
+	* @param {string} operation - Type of query to perform
 	* @param {TERMS|TEXT} field - Field to apply the query to
 	* @param {*} value - Value of the query
-	* @param {Function} callback - Callback for nesting
 	* @return {BooleanBuilder} this
 	*/
-	must (type, field, value) {
-		this._bool[BOOL.MUST].push({
-			[type]: makeQuery(field, value)
+	must (operation, field, value) {
+		this._bool.push({
+			field,
+			type: BOOL.MUST,
+			query: { [operation]: makeQuery(field, value)}
 		});
 		return this;
 	}
 
 	/**
 	* @description Add must boolean queries
-	* @param {string} type - Type of query to perform
+	* @param {string} operation - Type of query to perform
 	* @param {TERMS|TEXT} field - Field to apply the query to
 	* @param {*} value - Value of the query
-	* @param {Function} callback - Callback for nesting
 	* @return {BooleanBuilder} this
 	*/
-	should (type, field, value) {
-		this._bool[BOOL.SHOULD].push({
-			[type]: makeQuery(field, value)
+	should (operation, field, value) {
+		this._bool.push({
+			field,
+			type: BOOL.SHOULD,
+			query: { [operation]: makeQuery(field, value)}
 		});
 		return this;
 	}
 
 	/**
 	* @description Add must boolean queries
-	* @param {string} type - Type of query to perform
+	* @param {string} operation - Type of query to perform
 	* @param {TERMS|TEXT} field - Field to apply the query to
 	* @param {*} value - Value of the query
-	* @param {Function} callback - Callback for nesting
 	* @return {BooleanBuilder} this
 	*/
-	filter (type, field, value) {
-		this._bool[BOOL.FILTER].push({
-			[type]: makeQuery(field, value)
+	filter (operation, field, value) {
+		this._bool.push({
+			field,
+			type: BOOL.FILTER,
+			query: { [operation]: makeQuery(field, value)}
 		});
 		return this;
 	}
 
 	/**
 	* @description Add must boolean queries
-	* @param {string} type - Type of query to perform
+	* @param {string} operation - Type of query to perform
 	* @param {TERMS|TEXT} field - Field to apply the query to
 	* @param {*} value - Value of the query
-	* @param {Function} callback - Callback for nesting
 	* @return {BooleanBuilder} this
 	*/
-	must_not (type, field, value) {
-		this._bool[BOOL.MUST_NOT].push({
-			[type]: makeQuery(field, value)
+	must_not (operation, field, value) {
+		this._bool.push({
+			field,
+			type: BOOL.MUST_NOT,
+			query: { [operation]: makeQuery(field, value)}
 		});
 		return this;
 	}
@@ -77,17 +81,9 @@ class BooleanBuilder {
 	* @return {Object} result - ES Query
 	*/
 	build () {
-		return this.canBuild()
+		return this._bool.length
 			? prepareBoolQuery(this._bool)
 			: {};
-	}
-
-	/**
-	* @description Do we have any queries to build
-	* @return {boolean}
-	*/
-	canBuild () {
-		return Object.getOwnPropertyNames(this._bool).some(key => this._bool[key].length);
 	}
 
 }

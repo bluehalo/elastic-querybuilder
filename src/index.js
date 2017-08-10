@@ -61,7 +61,6 @@ class QueryBuilder extends BooleanBuilder {
 	* @return An elasticsearch query
 	*/
 	build () {
-
 		// Grab our filters from BooleanBuilder
 		const queries = super.build();
 

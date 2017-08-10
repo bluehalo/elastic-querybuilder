@@ -31,19 +31,6 @@ const applyRawParameter = (obj, { path, value }) => {
 };
 
 /**
-* @description Parse query from an array
-* @param {Array<*>} query - Array of obejcts
-* @return {*|Array<*>} - if the array only has one element, return that, else, return the array
-* @example
-*		parseQuery([{ foo: 'bar' }]) => { foo: 'bar' }
-*		parseQuery([{ foo: 'bar' }, { foo: 'bar' }]) => [{ foo: 'bar' }, { foo: 'bar' }]
-*/
-const parseQuery = (query) => {
-	invariant(Array.isArray(query), ERRORS.NOT_AN_ARRAY);
-	return query.length === 1	? query[0] : query;
-};
-
-/**
 * @description Make the body part of the query
 * @param {string} field - field name or options to use for a simpler query
 * @param {*} value - value for the field
@@ -69,57 +56,80 @@ const makeQuery = (field, value) => {
 };
 
 /**
-* @description Take a set of boolean filters and build a boolean query from it
-* @param {Object} filters - Object containing all of our filters
-* @param {Array<Object>} filters.must - must filters, contains type, field, value
-* @param {Array<Object>} filters.should - should filters, contains type, field, value
-* @param {Array<Object>} filters.filter - filter filters, contains type, field, value
-* @param {Array<Object>} filters.must_not - must_not filters, contains type, field, value
+* @description Reducer function for boolean descriptors
+* @param {Object} descriptor - Array of items describing a boolean query
+* @param {string} descriptor.type - Boolean type (must, should, filter, must_not)
+* @param {string} descriptor.query - Query type, like match, match_all, range, etc.
+*/
+const reduceBoolQueries = (all, descriptor) => {
+	if (Array.isArray(all[descriptor.type])) {
+		all[descriptor.type].push(descriptor.query);
+	} else if (all[descriptor.type]) {
+		// Convert the object into an array
+		all[descriptor.type] = [all[descriptor.type]];
+		all[descriptor.type].push(descriptor.query);
+	} else {
+		all[descriptor.type] = descriptor.query;
+	}
+	return all;
+};
+
+/**
+* @description Take a set of boolean descriptors and builds a boolean query from it
+* @param {Object} descriptors - Object containing all of our descriptors
 * @return {Object} - boolean query
 */
-const prepareBoolQuery = (filters) => {
-	invariant(
-		(
-			Array.isArray(filters[BOOL.MUST]) &&
-			Array.isArray(filters[BOOL.SHOULD]) &&
-			Array.isArray(filters[BOOL.FILTER]) &&
-			Array.isArray(filters[BOOL.MUST_NOT])
-		),
-		ERRORS.NOT_AN_ARRAY
-	);
-
-	// If we only have one must and nothing else, just return that query
-	// this will allow us to build simple queries efficiently
-	if (
-		filters[BOOL.MUST].length === 1
-		&& !(filters[BOOL.SHOULD].length || filters[BOOL.FILTER].length || filters[BOOL.MUST_NOT].length)
-	) {
-		return parseQuery(filters[BOOL.MUST]);
+const prepareBoolQuery = (descriptors) => {
+	invariant(Array.isArray(descriptors), ERRORS.NOT_AN_ARRAY);
+	// If the length is 1 and it is a must, we can return just the query
+	if (descriptors.every(descriptor => descriptor.type === BOOL.MUST) && descriptors.length === 1) {
+		return descriptors[0].query;
 	}
 
-	const bool = {};
+	return {
+		bool: descriptors.reduce(reduceBoolQueries, {})
+	};
+};
 
-	if (filters[BOOL.MUST].length) {
-		bool[BOOL.MUST] = parseQuery(filters[BOOL.MUST]);
-	}
+/**
+* @description Prepare a filtered aggregation query
+* @param {Object} options
+* @param {string} options.name - top-level name for the aggregations
+* @param {Array<Object>} options.aggregations - Array of aggregation objects containing at minimum a field
+* @param {Array<Object>} options.descriptors - Array of boolean descriptors used to filter our aggs
+*/
+const prepareFilteredAggregation = ({ name = 'all', aggregations, descriptors } = {}) => {
+	invariant(Array.isArray(aggregations) && Array.isArray(descriptors), ERRORS.NOT_AN_ARRAY);
 
-	if (filters[BOOL.SHOULD].length) {
-		bool[BOOL.SHOULD] = parseQuery(filters[BOOL.SHOULD]);
-	}
+	const aggs = aggregations.reduce((all, aggregate) => {
+		// Remove any descriptors if they have the same field as this aggregation
+		const boolQueries = descriptors
+			.filter(descriptor => descriptor.field !== aggregate.field)
+			.reduce(reduceBoolQueries, {});
 
-	if (filters[BOOL.FILTER].length) {
-		bool[BOOL.FILTER] = parseQuery(filters[BOOL.FILTER]);
-	}
+		// Create our aggregation entry
+		all[aggregate.field] = {
+			filter: { bool: boolQueries },
+			aggs: { [aggregate.field]: { terms: aggregate }}
+		};
 
-	if (filters[BOOL.MUST_NOT].length) {
-		bool[BOOL.MUST_NOT] = parseQuery(filters[BOOL.MUST_NOT]);
-	}
+		return all;
+	}, {});
 
-	return { bool };
+	return {
+		aggs: {
+			[name]: {
+				aggs,
+				global: {}
+			}
+		}
+	};
 };
 
 module.exports = {
 	makeQuery,
 	prepareBoolQuery,
-	applyRawParameter
+	applyRawParameter,
+	reduceBoolQueries,
+	prepareFilteredAggregation
 };
