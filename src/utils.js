@@ -5,28 +5,40 @@ const {
 	ERRORS
 } = require('./constants');
 
+//**************
+// Basic Helpers
+//**************
+const last = (collection) => {
+	return collection.length ? collection[collection.length - 1] : undefined;
+};
+
+const getAggName = (type, field) => {
+	return typeof field !== 'string'
+		? field.path || field.field || `agg_${type}`
+		: field;
+};
+
 /**
 * @description Adds a value to the object at the provided path
-* @param {Object} obj - Original object to add value to
-* @param {Object} options - options
-* @param {string} options.path - path to add the object to
-* @param {*} options.value - value to add to the object
+* @param {Object} object - Original object to add value to
+* @param {string} path - path to add the object to
+* @param {*} value - value to add to the object
 */
-const applyRawParameter = (obj, { path, value }) => {
-	invariant((obj && path && value), ERRORS.APPLY_RAW_PARAMETER);
+const applyRawParameter = (object, path, value) => {
+	invariant((object && path && value), ERRORS.APPLY_RAW_PARAMETER);
 	const props = path.split('.');
 
 	if (props.length > 1) {
 		const prop = props.shift();
 		// Add the prop if it does not exist
-		if (!obj[prop]) {
-			obj[prop] = {};
+		if (!object[prop]) {
+			object[prop] = {};
 		}
 		// Check the next level down
-		applyRawParameter(obj[prop], { path: props.join('.'), value } );
+		applyRawParameter(object[prop], props.join('.'), value );
 	} else {
 		// assign our value
-		obj[props[0]] = value;
+		object[props[0]] = value;
 	}
 };
 
@@ -39,20 +51,23 @@ const applyRawParameter = (obj, { path, value }) => {
 *  makeQuery({ boost: 1.2, fuzzinness: 'auto' }) => { boost: 1.2, fuzzinness: 'auto' }
 *  makeQuery() => {}
 */
-const makeQuery = (field, value) => {
-	const isOptions = field === Object(field);
+const makeQuery = (field, value, options) => {
+	const isObject = field === Object(field);
 	const hasField = field !== undefined;
 	const hasValue = value !== undefined;
+	let returnQuery = {};
 
 	if (hasValue && hasField) {
-		return { [field]: value };
+		returnQuery = { [field]: value };
 	}
-	else if (hasField && isOptions) {
-		return field;
+	else if (hasField && isObject) {
+		returnQuery = field;
 	}
-	else {
-		return {};
+	else if (hasField) {
+		returnQuery = { field };
 	}
+
+	return Object.assign(returnQuery, options);
 };
 
 /**
@@ -117,17 +132,69 @@ const prepareFilteredAggregation = ({ name = 'all', aggregations, descriptors } 
 	}, {});
 
 	return {
-		aggs: {
-			[name]: {
-				aggs,
-				global: {}
-			}
+		[name]: {
+			aggs,
+			global: {}
 		}
 	};
 };
 
+/**
+* @description Save our aggregations and handle any nested cases
+*/
+const saveAggs = (...params) => {
+	const [ Builder, collection, ...args ] = params;
+	const nested = {};
+
+	if (typeof last(args) === 'function') {
+		const func = args.pop();
+		const results = func(new Builder());
+		nested.aggs = results.buildAggs();
+	}
+
+	// Parse out remaining values and store them for later
+	const [ type, field, options ] = args;
+	const agg = Object.assign({
+		[type]: makeQuery(field, undefined, options)
+	}, nested);
+
+	collection[getAggName(type, field)] = agg;
+};
+
+/**
+* @description Save our query and handle any nested cases
+*/
+const saveQuery = (...params) => {
+	const [ Builder, collection, type, ...args ] = params;
+	const nested = {};
+
+	if (typeof last(args) === 'function') {
+		const func = args.pop();
+		const results = func(new Builder());
+		nested.query = results.build();
+	}
+
+	// Try to parse these values from the remaining args
+	const [ operation, field, value, options ] = args;
+
+	// If the only argument was a function and we have a nested query, return only that
+	const query = nested.query && !operation
+		? nested.query
+		: { [operation]: Object.assign(makeQuery(field, value, options), nested) };
+
+	collection.push({
+		type,
+		field,
+		query
+	});
+};
+
 module.exports = {
+	last,
+	saveAggs,
 	makeQuery,
+	saveQuery,
+	getAggName,
 	prepareBoolQuery,
 	applyRawParameter,
 	reduceBoolQueries,

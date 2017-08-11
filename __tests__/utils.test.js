@@ -18,7 +18,7 @@ const mocks = {
 		},
 		{
 			type: 'must',
-			query: { match: { enemy: 'Cartmen' }},
+			query: { match: { enemy: 'Cartman' }},
 			field: 'enemy'
 		},
 		{
@@ -49,115 +49,44 @@ const mocks = {
 	]
 };
 
-const expected = {
-	makeQuery: {
-		fieldAndValue: {
-			stans_dad: 'randy'
-		},
-		fieldIsObject: {
-			favorite_channel: 'Food Network',
-			favorite_ingredient: 'Creme Fraiche'
-		},
-		noop: {}
-	},
-	reducedBoolQueries: {
-		must: [
-			{ match: { school: 'South Park Elementary' }},
-			{ match: { grade: '4th' }},
-			{ match: { enemy: 'Cartmen' }}
-		],
-		should: {
-			match: {
-				gender: 'female'
-			}
-		}
-	},
-	prepareBoolQuery: {
-		single_must: {
-			match_all: {}
-		},
-		single_should: {
-			bool: {
-				should: {
-					match: {
-						alias: 'Professor Chaos'
-					}
-				}
-			}
-		},
-		mixed: {
-			bool: {
-				must: [
-					{ match: { school: 'South Park Elementary' }},
-					{ match: { grade: '4th' }},
-					{ match: { enemy: 'Cartmen' }}
-				],
-				should: {
-					match: {
-						gender: 'female'
-					}
-				}
-			}
-		}
-	},
-	prepareFilteredAggregation: {
-		default_name: {
-			aggs: {
-				all: {
-					global: {},
-					aggs: {
-						grade: {
-							aggs: {
-								grade: {
-									terms: { field: 'grade', size: 20}
-								}
-							},
-							filter: {
-								bool: {
-									should: { match: { alias: 'Professor Chaos' }}
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		custom_name: {
-			aggs: {
-				south_park_aggs: {
-					global: {},
-					aggs: {
-						grade: {
-							aggs: {
-								grade: {
-									terms: { field: 'grade', size: 20}
-								}
-							},
-							filter: {
-								bool: {
-									should: { match: { gender: 'female' }},
-									must: [
-										{ match: { school: 'South Park Elementary' }},
-										{ match: { enemy: 'Cartmen' }}
-									]
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-};
-
 describe('utils', () => {
+
+	describe('last', () => {
+
+		test('should return the last element in the array', () => {
+			expect(utils.last([1, 2, 3])).toEqual(3);
+		});
+
+		test('should return an array if the length property is missing or 0', () => {
+			expect(utils.last([])).toBeUndefined();
+			expect(utils.last(3)).toBeUndefined();
+		});
+
+	});
+
+	describe('getAggName', function () {
+
+		test('should return the field if field is a string', function () {
+			expect(utils.getAggName('type', 'hanky')).toEqual('hanky');
+		});
+
+		test('should return the field or path property if the field is an object', function () {
+			expect(utils.getAggName('type', { field: 'the_christmas_poo' })).toEqual('the_christmas_poo');
+			expect(utils.getAggName('type', { path: 'imagination_land' })).toEqual('imagination_land');
+		});
+
+		test('should return `agg_${type}` when no string, or field or path prop exists', function () {
+			expect(utils.getAggName('max', {})).toEqual('agg_max');
+		});
+
+	});
 
 	describe('applyRawParameter', () => {
 
 		test('should throw an error if required arguments are not provided', () => {
 			const south_park = {};
 			function perform_check () {
-				utils.applyRawParameter(south_park, { value: 'KFC' });
+				utils.applyRawParameter(south_park, 'KFC');
 			}
 
 			expect(perform_check).toThrowError(ERRORS.APPLY_RAW_PARAMETER);
@@ -165,22 +94,21 @@ describe('utils', () => {
 
 		test('should add top level properties to an object', () => {
 			const south_park = {};
-			utils.applyRawParameter(south_park, { path: 'state', value: 'Colorado' });
+			utils.applyRawParameter(south_park, 'state', 'Colorado');
+
 			expect(south_park.state).toEqual('Colorado');
 		});
 
 		test('should add nested properties to an object', () => {
 			const south_park = { best: {}};
-			utils.applyRawParameter(south_park, { path: 'best.chicken', value: 'KFC' });
+			utils.applyRawParameter(south_park, 'best.chicken', 'KFC');
+
 			expect(south_park.best.chicken).toEqual('KFC');
 		});
 
 		test('should add properties to the object if the path does not yet exist', () => {
 			const south_park = {};
-			utils.applyRawParameter(south_park, {
-				path: 'hare_club_for_men.rivals',
-				value: ['Bill Donahue', 'Pope Benedict XVI']
-			});
+			utils.applyRawParameter(south_park, 'hare_club_for_men.rivals', ['Bill Donahue', 'Pope Benedict XVI']);
 
 			expect(south_park.hare_club_for_men.rivals).toEqual(['Bill Donahue', 'Pope Benedict XVI']);
 		});
@@ -191,7 +119,10 @@ describe('utils', () => {
 
 		test('should return field as key and value as value if both present', () => {
 			const result = utils.makeQuery('stans_dad', 'randy');
-			expect(result).toEqual(expected.makeQuery.fieldAndValue);
+
+			expect(result).toEqual({
+				stans_dad: 'randy'
+			});
 		});
 
 		test('should return field as is if it is an object', () => {
@@ -199,12 +130,17 @@ describe('utils', () => {
 				favorite_channel: 'Food Network',
 				favorite_ingredient: 'Creme Fraiche'
 			});
-			expect(result).toEqual(expected.makeQuery.fieldIsObject);
+
+			expect(result).toEqual({
+				favorite_channel: 'Food Network',
+				favorite_ingredient: 'Creme Fraiche'
+			});
 		});
 
 		test('should return an empty object if both field and value are not present', () => {
 			const result = utils.makeQuery();
-			expect(result).toEqual(expected.makeQuery.noop);
+
+			expect(result).toEqual({});
 		});
 
 	});
@@ -213,7 +149,19 @@ describe('utils', () => {
 
 		test('should reduce the descriptors into an es bool query', () => {
 			const result = mocks.mixed_descriptors.reduce(utils.reduceBoolQueries, {});
-			expect(result).toEqual(expected.reducedBoolQueries);
+
+			expect(result).toEqual({
+				must: [
+					{ match: { school: 'South Park Elementary' }},
+					{ match: { grade: '4th' }},
+					{ match: { enemy: 'Cartman' }}
+				],
+				should: {
+					match: {
+						gender: 'female'
+					}
+				}
+			});
 		});
 
 	});
@@ -230,17 +178,43 @@ describe('utils', () => {
 
 		test('should return a simple query if only one query and it\'s a must', () => {
 			const result = utils.prepareBoolQuery(mocks.single_must_descriptor);
-			expect(result).toEqual(expected.prepareBoolQuery.single_must);
+
+			expect(result).toEqual({
+				match_all: {}
+			});
 		});
 
 		test('should return a bool query if only one query and not a must', () => {
 			const result = utils.prepareBoolQuery(mocks.single_should_descriptor);
-			expect(result).toEqual(expected.prepareBoolQuery.single_should);
+
+			expect(result).toEqual({
+				bool: {
+					should: {
+						match: {
+							alias: 'Professor Chaos'
+						}
+					}
+				}
+			});
 		});
 
 		test('should return a valid es bool query for multiple descriptors', () => {
 			const result = utils.prepareBoolQuery(mocks.mixed_descriptors);
-			expect(result).toEqual(expected.prepareBoolQuery.mixed);
+
+			expect(result).toEqual({
+				bool: {
+					must: [
+						{ match: { school: 'South Park Elementary' }},
+						{ match: { grade: '4th' }},
+						{ match: { enemy: 'Cartman' }}
+					],
+					should: {
+						match: {
+							gender: 'female'
+						}
+					}
+				}
+			});
 		});
 
 	});
@@ -283,7 +257,25 @@ describe('utils', () => {
 				descriptors: mocks.single_should_descriptor
 			});
 
-			expect(result).toEqual(expected.prepareFilteredAggregation.default_name);
+			expect(result).toEqual({
+				all: {
+					global: {},
+					aggs: {
+						grade: {
+							aggs: {
+								grade: {
+									terms: { field: 'grade', size: 20}
+								}
+							},
+							filter: {
+								bool: {
+									should: { match: { alias: 'Professor Chaos' }}
+								}
+							}
+						}
+					}
+				}
+			});
 		});
 
 		test('should create a valid aggregation object with the correct filters applied', () => {
@@ -293,7 +285,29 @@ describe('utils', () => {
 				name: 'south_park_aggs'
 			});
 
-			expect(result).toEqual(expected.prepareFilteredAggregation.custom_name);
+			expect(result).toEqual({
+				south_park_aggs: {
+					global: {},
+					aggs: {
+						grade: {
+							aggs: {
+								grade: {
+									terms: { field: 'grade', size: 20}
+								}
+							},
+							filter: {
+								bool: {
+									should: { match: { gender: 'female' }},
+									must: [
+										{ match: { school: 'South Park Elementary' }},
+										{ match: { enemy: 'Cartman' }}
+									]
+								}
+							}
+						}
+					}
+				}
+			});
 		});
 
 	});

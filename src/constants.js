@@ -4,9 +4,11 @@ module.exports.DEFAULTS = {
 };
 
 module.exports.ERRORS = {
-	RAW: 'Missing arguments, you must provide a path and a value.',
+	RAW: 'Missing arguments, you must provide exactly 2 arguments, a path and a value.',
 	APPLY_RAW_PARAMETER: 'Missing arguments, cannot `applyRawParameter` without a value, path, and object to add it to.',
-	NOT_AN_ARRAY: 'Invalid argument type, argument must be of type Array'
+	NOT_AN_ARRAY: 'Invalid argument type, argument must be of type Array',
+	MULTI_MATCH_ARGS: 'Missing arguments or invalid type. You must provide a `query` string and an `Array` of fields.',
+	NO_AGGS: 'No aggregations to build, make sure to add some with `aggs` before calling `buildAggregation`.'
 };
 
 module.exports.BOOL = {
