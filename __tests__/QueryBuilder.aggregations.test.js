@@ -138,7 +138,7 @@ describe('QueryBuilder - Build Aggregations', () => {
 		});
 	});
 
-	test('should be filtered aggregations on a boolean query', () => {
+	test('should build filtered aggregations on a boolean query', () => {
 		const query = new QueryBuilder()
 			.must('match', 'school', 'South Park Elementary')
 			.must('match', 'grade', '4th')
