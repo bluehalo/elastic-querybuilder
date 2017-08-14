@@ -7,7 +7,7 @@ describe('BaseBuilder', () => {
 		expect(query).toEqual({});
 	});
 
-	test('should create simple queries with must', () => {
+	test('should create simple queries with query', () => {
 		const query = new BaseBuilder()
 			.query('match_all')
 			.build();
@@ -17,7 +17,7 @@ describe('BaseBuilder', () => {
 		});
 	});
 
-	test('should create simple queries with options with must', () => {
+	test('should create simple queries with options with query', () => {
 		const query = new BaseBuilder()
 			.query('match_all', { boost: 2.4, fuzzinness: 'auto' })
 			.build();

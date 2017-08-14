@@ -156,7 +156,7 @@ describe('QueryBuilder', () => {
 			expect(query.query.dis_max.tie_breaker).toEqual(0.5);
 		});
 
-		test('should build a legitimate dis_max query with options', () => {
+		test('should build a dis_max query with options', () => {
 			const query = new QueryBuilder()
 				.buildDisMax({
 					queries: mocks.dis_max_queries,

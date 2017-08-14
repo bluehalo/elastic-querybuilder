@@ -2,7 +2,7 @@ const QueryBuilder = require('../src/index');
 
 describe('QueryBuilder - Build Aggregations', () => {
 
-	test('should be build a simple aggregation', () => {
+	test('should build a simple aggregation', () => {
 		const query = new QueryBuilder()
 			.raw('explain', true)
 			.aggs('avg', 'count')
@@ -22,7 +22,7 @@ describe('QueryBuilder - Build Aggregations', () => {
 		});
 	});
 
-	test('should be build a simple aggregation with object value', () => {
+	test('should build a simple aggregation with object value', () => {
 		const query = new QueryBuilder()
 			.aggs('terms', {
 				field: 'games',
@@ -46,7 +46,7 @@ describe('QueryBuilder - Build Aggregations', () => {
 		});
 	});
 
-	test('should be build a simple aggregation with some extra options', () => {
+	test('should build a simple aggregation with some extra options', () => {
 		const query = new QueryBuilder()
 			.aggs('terms', 'games', { exclude: 'Call.*' })
 			.buildAggregation();
