@@ -4,12 +4,14 @@ describe('QueryBuilder - Build Aggregations', () => {
 
 	test('should be build a simple aggregation', () => {
 		const query = new QueryBuilder()
+			.raw('explain', true)
 			.aggs('avg', 'count')
 			.buildAggregation();
 
 		expect(query).toEqual({
 			from: 0,
 			size: 15,
+			explain: true,
 			aggs: {
 				count: {
 					avg: {

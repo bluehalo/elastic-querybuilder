@@ -66,12 +66,11 @@ class QueryBuilder extends BaseBuilder {
 		applyRawParameter(this._query, 'query', super.build());
 		// Add filtered aggregations if necessary
 		if (this._filteredAggs.length) {
-			const aggs = prepareFilteredAggregation({
+			applyRawParameter(this._query, 'aggs', prepareFilteredAggregation({
 				name: options.name || 'all',
 				aggregations: this._filteredAggs,
 				descriptors: this._queries
-			});
-			applyRawParameter(this._query, 'aggs', aggs);
+			}));
 		}
 
 		// finally add any raw parameter that may exist
