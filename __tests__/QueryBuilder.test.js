@@ -43,14 +43,14 @@ describe('QueryBuilder', () => {
 		expect(builder._query.size).toEqual(newSize);
 	});
 
-	describe('buildBoolean', () => {
+	describe('build', () => {
 
 		test('should allow me to add raw parameters to the final query', () => {
 			const query = new QueryBuilder()
 				.raw('min_score', 2)
 				.raw('query.bool.boost', 1.2)
 				.raw('query.bool.minimum_should_match', 1)
-				.buildBoolean();
+				.build();
 
 			expect(query).toEqual({
 				from: 0,
@@ -68,7 +68,7 @@ describe('QueryBuilder', () => {
 		test('should handle a simple match_none query', () => {
 			const query = new QueryBuilder()
 				.must('match_none')
-				.buildBoolean();
+				.build();
 
 			expect(query).toEqual({
 				from: 0,
@@ -84,7 +84,7 @@ describe('QueryBuilder', () => {
 				.raw('query.bool.boost', 1.2)
 				.must('match', 'name', 'Kenny')
 				.must('match', 'alias', 'Mysterion')
-				.buildBoolean();
+				.build();
 
 			expect(query).toEqual({
 				from: 0,
@@ -107,7 +107,7 @@ describe('QueryBuilder', () => {
 				.must('match', 'name', 'Kenny')
 				.must('match', 'alias', 'Mysterion')
 				.should('match_phrase', 'most_common_question', 'Who is Mysterion?')
-				.buildBoolean();
+				.build();
 
 			expect(query).toEqual({
 				from: 0,

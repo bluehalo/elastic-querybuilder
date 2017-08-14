@@ -62,7 +62,7 @@ class QueryBuilder extends BaseBuilder {
 	* @param {boolean} options.name - Name for your filtered aggregations, default is 'all'
 	* @return An elasticsearch query
 	*/
-	buildBoolean (options = {}) {
+	build (options = {}) {
 		applyRawParameter(this._query, 'query', super.build());
 		// Add filtered aggregations if necessary
 		if (this._filteredAggs.length) {

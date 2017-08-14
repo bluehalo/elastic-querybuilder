@@ -143,7 +143,7 @@ describe('QueryBuilder - Build Aggregations', () => {
 			.must('match', 'enemy', 'Cartman')
 			.should('match', 'gender', 'female')
 			.filteredAggs({ field: 'grade', size: 12 })
-			.buildBoolean();
+			.build();
 
 		expect(query).toEqual({
 			from: 0,
