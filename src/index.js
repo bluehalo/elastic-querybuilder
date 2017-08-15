@@ -36,7 +36,7 @@ class QueryBuilder extends BaseBuilder {
 
 	/**
 	* @description Update the size setting
-	* @param {number} newSize - New value for size
+	* @param {number} size - New value for size
 	* @return {QueryBuilder} this
 	*/
 	size (size) {

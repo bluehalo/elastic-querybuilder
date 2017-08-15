@@ -82,7 +82,7 @@ class BaseBuilder {
 	}
 
 	/**
-	* @description Add must boolean queries
+	* @description Add should boolean queries
 	* @param {string} operation - Type of query to perform
 	* @param {TERMS|TEXT} field - Field to apply the query to
 	* @param {*} value - Value of the query
@@ -96,7 +96,7 @@ class BaseBuilder {
 	}
 
 	/**
-	* @description Add must boolean queries
+	* @description Add filter boolean queries
 	* @param {string} operation - Type of query to perform
 	* @param {TERMS|TEXT} field - Field to apply the query to
 	* @param {*} value - Value of the query
@@ -110,7 +110,7 @@ class BaseBuilder {
 	}
 
 	/**
-	* @description Add must boolean queries
+	* @description Add must_not boolean queries
 	* @param {string} operation - Type of query to perform
 	* @param {TERMS|TEXT} field - Field to apply the query to
 	* @param {*} value - Value of the query
