@@ -3,6 +3,7 @@ node_modules
 
 # Generated Content
 coverage
+*.log
 
 # System Files
 .DS_Store

@@ -48,7 +48,7 @@ const applyRawParameter = (object, path, value) => {
 * @param {*} value - value for the field
 * @example
 *  makeQuery('foo', 'bar') => { foo: 'bar' }
-*  makeQuery({ boost: 1.2, fuzzinness: 'auto' }) => { boost: 1.2, fuzzinness: 'auto' }
+*  makeQuery({ boost: 1.2, fuzziness: 'auto' }) => { boost: 1.2, fuzziness: 'auto' }
 *  makeQuery() => {}
 */
 const makeQuery = (field, value, options) => {

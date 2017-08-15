@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "test": "set -e; eslint src; jest;",
-		"jest": "jest"
+    "lint": "eslint src;",
+    "jest": "jest"
   },
   "keywords": [
     "elasticsearch",
@@ -21,8 +22,14 @@
   "jest": {
     "verbose": true,
     "collectCoverage": true,
-    "coverageReporters": [ "text", "lcov", "json" ],
-    "coveragePathIgnorePatterns": [ "<rootDir>/node_modules" ]
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "json"
+    ],
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/node_modules"
+    ]
   },
   "devDependencies": {
     "eslint": "^4.4.1",

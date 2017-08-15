@@ -27,7 +27,7 @@ class BaseBuilder {
 	/**
 	* @description Add must boolean queries
 	* @param {string} operation - Type of query to perform
-	* @param {TERMS|TEXT} field - Field to apply the query to
+	* @param {TERMS|TEXT|Object} field - Field to apply the query to
 	* @param {*} value - Value of the query
 	* @param {Object} options - Options for the query
 	* @param {Function} nester - Function that allows for nesting queries
@@ -39,9 +39,65 @@ class BaseBuilder {
 	}
 
 	/**
+	* @description Add must boolean queries
+	* @param {string} operation - Type of query to perform
+	* @param {TERMS|TEXT|Object} field - Field to apply the query to
+	* @param {*} value - Value of the query
+	* @param {Object} options - Options for the query
+	* @param {Function} nester - Function that allows for nesting queries
+	* @return {BaseBuilder} this
+	*/
+	must () {
+		saveQuery(BaseBuilder, this._queries, BOOL.MUST, ...arguments);
+		return this;
+	}
+
+	/**
+	* @description Add should boolean queries
+	* @param {string} operation - Type of query to perform
+	* @param {TERMS|TEXT|Object} field - Field to apply the query to
+	* @param {*} value - Value of the query
+	* @param {Object} options - Options for the query
+	* @param {Function} nester - Function that allows for nesting queries
+	* @return {BaseBuilder} this
+	*/
+	should () {
+		saveQuery(BaseBuilder, this._queries, BOOL.SHOULD, ...arguments);
+		return this;
+	}
+
+	/**
+	* @description Add filter boolean queries
+	* @param {string} operation - Type of query to perform
+	* @param {TERMS|TEXT|Object} field - Field to apply the query to
+	* @param {*} value - Value of the query
+	* @param {Object} options - Options for the query
+	* @param {Function} nester - Function that allows for nesting queries
+	* @return {BaseBuilder} this
+	*/
+	filter () {
+		saveQuery(BaseBuilder, this._queries, BOOL.FILTER, ...arguments);
+		return this;
+	}
+
+	/**
+	* @description Add must_not boolean queries
+	* @param {string} operation - Type of query to perform
+	* @param {TERMS|TEXT|Object} field - Field to apply the query to
+	* @param {*} value - Value of the query
+	* @param {Object} options - Options for the query
+	* @param {Function} nester - Function that allows for nesting queries
+	* @return {BaseBuilder} this
+	*/
+	must_not () {
+		saveQuery(BaseBuilder, this._queries, BOOL.MUST_NOT, ...arguments);
+		return this;
+	}
+
+	/**
 	* @description Add a field that will be used to generate our aggregations
 	* @param {string} type - Type of aggregation to perform
-  * @param {string} field - Field name to aggregate on
+  * @param {string|Object} field - Field name to aggregate on
 	* @param {Object} options - Options to use
 	* @param {Function} nester - Function that allows for nesting queries
 	* @return {BaseBuilder} this
@@ -59,67 +115,10 @@ class BaseBuilder {
   * @param {string} agg.field - Field name to aggregate on
 	* @param {string} agg.include - pattern to include in the buckets list
 	* @param {string} agg.exclude - pattern to exclude in the buckets list
-	* @param {Function} nester - Function that allows for nesting queries
 	* @return {BaseBuilder} this
 	*/
 	filteredAggs (agg) {
 		this._filteredAggs.push(agg);
-		return this;
-	}
-
-	/**
-	* @description Add must boolean queries
-	* @param {string} operation - Type of query to perform
-	* @param {TERMS|TEXT} field - Field to apply the query to
-	* @param {*} value - Value of the query
-	* @param {Object} options - Options for the query
-	* @param {Function} nester - Function that allows for nesting queries
-	* @return {BaseBuilder} this
-	*/
-	must () {
-		saveQuery(BaseBuilder, this._queries, BOOL.MUST, ...arguments);
-		return this;
-	}
-
-	/**
-	* @description Add should boolean queries
-	* @param {string} operation - Type of query to perform
-	* @param {TERMS|TEXT} field - Field to apply the query to
-	* @param {*} value - Value of the query
-	* @param {Object} options - Options for the query
-	* @param {Function} nester - Function that allows for nesting queries
-	* @return {BaseBuilder} this
-	*/
-	should () {
-		saveQuery(BaseBuilder, this._queries, BOOL.SHOULD, ...arguments);
-		return this;
-	}
-
-	/**
-	* @description Add filter boolean queries
-	* @param {string} operation - Type of query to perform
-	* @param {TERMS|TEXT} field - Field to apply the query to
-	* @param {*} value - Value of the query
-	* @param {Object} options - Options for the query
-	* @param {Function} nester - Function that allows for nesting queries
-	* @return {BaseBuilder} this
-	*/
-	filter () {
-		saveQuery(BaseBuilder, this._queries, BOOL.FILTER, ...arguments);
-		return this;
-	}
-
-	/**
-	* @description Add must_not boolean queries
-	* @param {string} operation - Type of query to perform
-	* @param {TERMS|TEXT} field - Field to apply the query to
-	* @param {*} value - Value of the query
-	* @param {Object} options - Options for the query
-	* @param {Function} nester - Function that allows for nesting queries
-	* @return {BaseBuilder} this
-	*/
-	must_not () {
-		saveQuery(BaseBuilder, this._queries, BOOL.MUST_NOT, ...arguments);
 		return this;
 	}
 
