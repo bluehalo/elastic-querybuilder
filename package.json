@@ -8,7 +8,8 @@
     "Robert Winterbottom <rwinterbottom@asymmetrik.com>"
   ],
   "scripts": {
-    "test": "set -e; eslint src; jest;"
+    "test": "set -e; eslint src; jest;",
+		"jest": "jest"
   },
   "keywords": [
     "elasticsearch",
