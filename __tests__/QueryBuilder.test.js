@@ -67,7 +67,7 @@ describe('QueryBuilder', () => {
 
 		test('should handle a simple match_none query', () => {
 			const query = new QueryBuilder()
-				.must('match_none')
+				.query('match_none')
 				.build();
 
 			expect(query).toEqual({
@@ -234,7 +234,7 @@ describe('QueryBuilder', () => {
 			expect(query.query.multi_match.tie_breaker).toEqual(0.5);
 		});
 
-		test('should build a legitimate multi_match query with options', () => {
+		test('should build a multi_match query with options', () => {
 			const query = new QueryBuilder()
 				.buildMultiMatch({
 					query: mocks.multi_match.query,

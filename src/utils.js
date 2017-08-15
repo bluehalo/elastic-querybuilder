@@ -110,7 +110,7 @@ const prepareBoolQuery = (descriptors) => {
 * @description Prepare a filtered aggregation query
 * @param {Object} options
 * @param {string} options.name - top-level name for the aggregations
-* @param {Array<Object>} options.aggregations - Array of aggregation objects containing at minimum a field
+* @param {Array<Object>} options.aggregations - Array of aggregation objects containing at minimum a field property
 * @param {Array<Object>} options.descriptors - Array of boolean descriptors used to filter our aggs
 */
 const prepareFilteredAggregation = ({ name = 'all', aggregations, descriptors } = {}) => {

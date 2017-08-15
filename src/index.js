@@ -116,7 +116,7 @@ class QueryBuilder extends BaseBuilder {
 	* @param {Object} options
 	* @param {string} options.query - String to query for
 	* @param {Array<string>} options.fields - Fields to apply this to
-	* @param {string} options.type - type to use, default is mest_fields
+	* @param {string} options.type - type to use, default is most_fields
 	* @param {number} options.tie_breaker - tie breaker for ranking terms
 	* @param {string} options.minimum_should_match - Boost to apply to the query
 	* @return An elasticsearch query

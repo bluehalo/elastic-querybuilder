@@ -13,7 +13,7 @@ class BaseBuilder {
 	constructor () {
 		/**
 		* These filters will be stored as query descriptions. Each push will contain
-		* all the properties needed to generate the actualy query object at a later time.
+		* all the properties needed to generate the actual query object at a later time.
 		* We do this so it is trivial to filter them for filtered aggregations at a later point.
 		*/
 		this._queries = [];

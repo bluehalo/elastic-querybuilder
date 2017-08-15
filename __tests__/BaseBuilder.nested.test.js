@@ -73,8 +73,7 @@ describe('BaseBuilder - Nested Queries', () => {
 		*			}
 		*		}
 		* }
-		* but since there is only must, there is a better way to build this
-		* see the results below
+		* but since there is only must, we can make some optimizations
 		*/
 
 		expect(query).toEqual({

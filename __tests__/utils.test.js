@@ -57,7 +57,7 @@ describe('utils', () => {
 			expect(utils.last([1, 2, 3])).toEqual(3);
 		});
 
-		test('should return an array if the length property is missing or 0', () => {
+		test('should return undefined if the length property is missing or 0', () => {
 			expect(utils.last([])).toBeUndefined();
 			expect(utils.last(3)).toBeUndefined();
 		});
@@ -66,7 +66,7 @@ describe('utils', () => {
 
 	describe('getAggName', function () {
 
-		test('should return the field if field is a string', function () {
+		test('should return the field if the field is a string', function () {
 			expect(utils.getAggName('type', 'hanky')).toEqual('hanky');
 		});
 
@@ -75,7 +75,7 @@ describe('utils', () => {
 			expect(utils.getAggName('type', { path: 'imagination_land' })).toEqual('imagination_land');
 		});
 
-		test('should return `agg_${type}` when no string, or field or path prop exists', function () {
+		test('should return `agg_${type}` when there is no string, or there is no field or path prop', function () {
 			expect(utils.getAggName('max', {})).toEqual('agg_max');
 		});
 
@@ -83,7 +83,7 @@ describe('utils', () => {
 
 	describe('applyRawParameter', () => {
 
-		test('should throw an error if required arguments are not provided', () => {
+		test('should throw an error if the required arguments are not provided', () => {
 			const south_park = {};
 			function perform_check () {
 				utils.applyRawParameter(south_park, 'KFC');
@@ -139,7 +139,6 @@ describe('utils', () => {
 
 		test('should return an empty object if both field and value are not present', () => {
 			const result = utils.makeQuery();
-
 			expect(result).toEqual({});
 		});
 
@@ -147,7 +146,7 @@ describe('utils', () => {
 
 	describe('reduceBoolQueries', () => {
 
-		test('should reduce the descriptors into an es bool query', () => {
+		test('should reduce the descriptors into an ES bool query', () => {
 			const result = mocks.mixed_descriptors.reduce(utils.reduceBoolQueries, {});
 
 			expect(result).toEqual({
@@ -176,7 +175,7 @@ describe('utils', () => {
 			expect(perform_check).toThrowError(ERRORS.NOT_AN_ARRAY);
 		});
 
-		test('should return a simple query if only one query and it\'s a must', () => {
+		test('should return a simple query if only one query provided and it\'s a must', () => {
 			const result = utils.prepareBoolQuery(mocks.single_must_descriptor);
 
 			expect(result).toEqual({
@@ -184,7 +183,7 @@ describe('utils', () => {
 			});
 		});
 
-		test('should return a bool query if only one query and not a must', () => {
+		test('should return a bool query if only one query provided and it\'s not a must', () => {
 			const result = utils.prepareBoolQuery(mocks.single_should_descriptor);
 
 			expect(result).toEqual({
@@ -198,7 +197,7 @@ describe('utils', () => {
 			});
 		});
 
-		test('should return a valid es bool query for multiple descriptors', () => {
+		test('should return a valid ES bool query for multiple descriptors', () => {
 			const result = utils.prepareBoolQuery(mocks.mixed_descriptors);
 
 			expect(result).toEqual({
@@ -251,7 +250,7 @@ describe('utils', () => {
 			expect(perform_check).toThrowError(ERRORS.NOT_AN_ARRAY);
 		});
 
-		test('should create an aggregation with the default `all` name if none is provided', () => {
+		test('should create an aggregation with the default `all` name if no name is provided', () => {
 			const result = utils.prepareFilteredAggregation({
 				aggregations: mocks.aggregations,
 				descriptors: mocks.single_should_descriptor

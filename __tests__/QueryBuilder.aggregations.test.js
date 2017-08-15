@@ -22,7 +22,7 @@ describe('QueryBuilder - Build Aggregations', () => {
 		});
 	});
 
-	test('should build a simple aggregation with object value', () => {
+	test('should build a simple aggregation with an object for the value arg', () => {
 		const query = new QueryBuilder()
 			.aggs('terms', {
 				field: 'games',

@@ -17,7 +17,7 @@ describe('BaseBuilder', () => {
 		});
 	});
 
-	test('should create simple queries with options with query', () => {
+	test('should create simple queries with options in a query call', () => {
 		const query = new BaseBuilder()
 			.query('match_all', { boost: 2.4, fuzzinness: 'auto' })
 			.build();
@@ -64,7 +64,7 @@ describe('BaseBuilder', () => {
 		});
 	});
 
-	test('should parse queries only when only one element is in the array', () => {
+	test('should parse queries only when one element is in the array', () => {
 		const query = new BaseBuilder()
 			.must('match', 'state', 'Colorado')
 			.must('match', 'city', 'South Park')
