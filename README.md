@@ -45,7 +45,7 @@ builder.raw(size: number): QueryBuilder
 
 ###### Examples
 ```javascript
-const query = builder
+const query = new QueryBuilder()
   .raw('query.bool.boost', 1.2)
   .must('match', 'name', 'Kenny')
   .build();
@@ -80,7 +80,7 @@ builder.query(
 ###### Examples
 Simple Query
 ``` javascript
-const query = builder
+const query = new QueryBuilder()
   .query('match_all')
   .build();
 
@@ -96,7 +96,7 @@ const query = builder
 
 Simple Query with options
 ``` javascript
-const query = builder
+const query = new QueryBuilder()
   .query('match_all', { boost: 2.4, fuzziness: 'auto' })
   .build();
 
@@ -115,7 +115,7 @@ const query = builder
 
 Simple Query with field and value
 ``` javascript
-const query = builder
+const query = new QueryBuilder()
   .query('match', 'location', 'South Park')
   .build();
 
@@ -135,7 +135,7 @@ const query = builder
 
 Simple Query with callback to build nested queries.
 ```javascript
-const query = builder
+const query = new QueryBuilder()
   .should('match', 'firstname', 'Joe')
   .should('match', 'firstname', 'John')
   .should(builder => builder
@@ -234,7 +234,7 @@ builder.aggs(
 ###### Examples
 Simple Aggregation
 ```javascript
-const query = builder
+const query = new QueryBuilder()
   .raw('explain', true)
   .aggs('avg', 'count')
   .buildAggregation();
@@ -256,7 +256,7 @@ const query = builder
 
 Multiple Aggregations
 ```javascript
-const query = builder
+const query = new QueryBuilder()
   .aggs('geo_distance', 'location', {
     origin: '52.3760, 4.894',
     unit: 'km',
@@ -304,7 +304,7 @@ const query = builder
 
 Nested Aggregations
 ```javascript
-const query = builder
+const query = new QueryBuilder()
   .aggs('nested', { path: 'locations' }, builder => builder
     .aggs('terms', 'locations.city')
   )
@@ -352,7 +352,7 @@ builder.filteredAggs(
 
 Adding filtered aggreations to a boolean query
 ```javascript
-const query = builder
+const query = new QueryBuilder()
   .must('match', 'grade', '4th')
   .must('match', 'gender', 'female')
   .filteredAggs({ field: 'grade', size: 12, exclude: 'Kindergarten' })
@@ -439,7 +439,7 @@ builder.buildDisMax(
 ###### Examples
 Building a `dis_max` query
 ```javascript
-const query = builder
+const query = new QueryBuilder()
   .buildDisMax({
     queries: [
       { term: { age: 31 }},
@@ -487,7 +487,7 @@ builder.buildMultiMatch(
 ###### Examples
 Building a `multi_match` query
 ```javascript
-const query = builder
+const query = new QueryBuilder()
   .buildMultiMatch({
     query: 'The Coon',
     fields: ['superhero', 'name', 'alias'],
