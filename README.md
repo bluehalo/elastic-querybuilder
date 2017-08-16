@@ -4,7 +4,6 @@
 ## Install
 
 ```shell
-# Coming soon, this is not published to npm yet
 # Install with Yarn
 yarn add @asymmetrik/elastic-querybuilder
 # Install with npm
