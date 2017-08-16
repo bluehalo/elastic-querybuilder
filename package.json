@@ -1,7 +1,7 @@
 {
   "name": "elastic-querybuilder",
   "version": "0.1.0",
-  "description": "A collection of query builders and composers for Elasticsearch.",
+  "description": "A query builder for Elasticsearch.",
   "main": "src/index.js",
   "repository": "https://github.com/Asymmetrik/elastic-querybuilder.git",
   "contributors": [
