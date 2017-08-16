@@ -97,7 +97,7 @@ class BaseBuilder {
 	/**
 	* @description Add a field that will be used to generate our aggregations
 	* @param {string} type - Type of aggregation to perform
-  * @param {string|Object} field - Field name to aggregate on
+	* @param {string|Object} field - Field name to aggregate on
 	* @param {Object} options - Options to use
 	* @param {Function} nester - Function that allows for nesting queries
 	* @return {BaseBuilder} this
@@ -112,7 +112,7 @@ class BaseBuilder {
 	* based on your current boolean filters. Use this for accurate facet counts.
 	* @param {Object} agg - Options for the aggregation
 	* @param {number} agg.size - Maximum number of aggregations to include in the response
-  * @param {string} agg.field - Field name to aggregate on
+	* @param {string} agg.field - Field name to aggregate on
 	* @param {string} agg.include - pattern to include in the buckets list
 	* @param {string} agg.exclude - pattern to exclude in the buckets list
 	* @return {BaseBuilder} this
