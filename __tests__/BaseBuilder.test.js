@@ -19,13 +19,13 @@ describe('BaseBuilder', () => {
 
 	test('should create simple queries with options in a query call', () => {
 		const query = new BaseBuilder()
-			.query('match_all', { boost: 2.4, fuzzinness: 'auto' })
+			.query('match_all', { boost: 2.4, fuzziness: 'auto' })
 			.build();
 
 		expect(query).toEqual({
 			match_all: {
 				boost: 2.4,
-				fuzzinness: 'auto'
+				fuzziness: 'auto'
 			}
 		});
 	});
