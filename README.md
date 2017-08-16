@@ -65,7 +65,7 @@ const query = new QueryBuilder()
 ```
 
 ##### `query`
-> Build up a query object. If your last or only argument is a function, it will be passed a builder object that can be used to nest boolean queries or build nested queries. The `must`, `should`, `filter`, and `must_not` all behave in the same manner with the same API, but build differently.
+> Build up a query object. If your last or only argument is a function, it will be passed a builder object that can be used to nest boolean queries or build nested queries. The `must`, `should`, `filter`, and `must_not` all have the same API and can be used in the same way.
 
 ```javascript
 builder.query(
@@ -124,16 +124,14 @@ const query = new QueryBuilder()
   from: 0,
   size: 15,
   query: {
-    {
-      match: {
-        location: 'SouthPark'
-      }
+    match: {
+      location: 'SouthPark'
     }
   }
 }
 ```
 
-Simple Query with callback to build nested queries.
+Query with callback to build nested queries.
 ```javascript
 const query = new QueryBuilder()
   .should('match', 'firstname', 'Joe')
@@ -341,8 +339,7 @@ builder.filteredAggs(
     size: number,
     include: string, 
     exclude: string,
-    // Can include any other valid properties to associate with
-    // an aggregation 
+    // Can include any other valid properties to associate with an aggregation 
   }
 )
 ```
@@ -401,7 +398,7 @@ const query = new QueryBuilder()
 ### Build Functions
 
 ##### `build`
-> Build your basic query. This includes parameters set using `query`, `must`, `should`, `filter`, `must_not`, `filteredAggs`, `from`, `size`, and `raw`. See above or the  [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for examples.
+> Build your basic query. This includes parameters set using `query`, `must`, `should`, `filter`, `must_not`, `filteredAggs`, `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
 
 ```javascript
 builder.build(
@@ -413,14 +410,14 @@ builder.build(
 ```
 
 ##### `buildAggregation`
-> Build your basic query. This includes parameters set using `aggs`, `from`, `size`, and `raw`. See above or the  [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for examples.
+> Build your basic query. This includes parameters set using `aggs`, `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
 
 ```javascript
 builder.buildAggregation(): Object
 ```
 
 ##### `buildDisMax`
-> Build your basic query. This includes parameters set using `from`, `size`, and `raw`. See above or the  [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for examples.
+> Build your basic query. This includes parameters set using `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
 
 ```javascript
 builder.buildDisMax(
@@ -466,7 +463,7 @@ const query = new QueryBuilder()
 ```
 
 ##### `buildMultiMatch`
-> Build your basic query. This includes parameters set using `from`, `size`, and `raw`. See above or the  [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for examples.
+> Build your basic query. This includes parameters set using `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
 
 ```javascript
 builder.buildMultiMatch(
