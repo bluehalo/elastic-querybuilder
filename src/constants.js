@@ -1,8 +1,22 @@
+/**
+* @typedef {number} DEFAULTS
+*/
+
+/**
+* @enum {DEFAULTS}
+*/
 module.exports.DEFAULTS = {
 	FROM: 0,
 	SIZE: 15
 };
 
+/**
+* @typedef {string} ERRORS
+*/
+
+/**
+* @enum {ERRORS}
+*/
 module.exports.ERRORS = {
 	RAW: 'Missing arguments, you must provide exactly 2 arguments, a path and a value.',
 	APPLY_RAW_PARAMETER: 'Missing arguments, cannot `applyRawParameter` without a value, path, and object to add it to.',
@@ -11,6 +25,13 @@ module.exports.ERRORS = {
 	NO_AGGS: 'No aggregations to build, make sure to add some with `aggs` before calling `buildAggregation`.'
 };
 
+/**
+* @typedef {string} BOOL
+*/
+
+/**
+* @enum {BOOL}
+*/
 module.exports.BOOL = {
 	FILTER: 'filter',
 	SHOULD: 'should',
@@ -18,6 +39,13 @@ module.exports.BOOL = {
 	MUST: 'must'
 };
 
+/**
+* @typedef {string} TERMS
+*/
+
+/**
+* @enum {TERMS}
+*/
 module.exports.TERMS = {
 	TERM: 'term',
 	TERMS: 'terms',
@@ -31,6 +59,13 @@ module.exports.TERMS = {
 	IDS: 'ids'
 };
 
+/**
+* @typedef {string} TEXT
+*/
+
+/**
+* @enum {TEXT}
+*/
 module.exports.TEXT = {
 	MATCH: 'match',
 	MATCH_PHRASE: 'match_phrase',
@@ -41,6 +76,13 @@ module.exports.TEXT = {
 	SIMPLE_QUERY_STRING: 'simple_query_string'
 };
 
+/**
+* @typedef {string} MATCH
+*/
+
+/**
+* @enum {MATCH}
+*/
 module.exports.MATCH = {
 	ALL: 'match_all',
   NONE: 'match_none'
