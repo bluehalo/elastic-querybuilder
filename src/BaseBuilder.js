@@ -123,6 +123,14 @@ class BaseBuilder {
 	}
 
 	/**
+	* @description Do we have boolean queries to build
+	* @return {boolean}
+	*/
+	hasQuery () {
+		return this._queries.length;
+	}
+
+	/**
 	* @description Build an ES Boolean Query
 	* @return {Object} - ES Query
 	*/
