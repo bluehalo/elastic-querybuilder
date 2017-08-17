@@ -83,6 +83,12 @@ class QueryBuilder extends BaseBuilder {
 	* @return An elasticsearch aggregation query
 	*/
 	buildAggregation () {
+		// Add a query if we do not have one so the aggs have data to aggregate
+		if (!this.hasQuery()) {
+			this.query('match_all');
+		}
+		// Add our query
+		applyRawParameter(this._query, 'query', super.build());
 		// Merge in our aggregations
 		applyRawParameter(this._query, 'aggs', super.buildAggs());
 		// finally add any raw parameter that may exist
@@ -102,8 +108,17 @@ class QueryBuilder extends BaseBuilder {
 	*/
 	buildDisMax (options = {}) {
 		invariant(Array.isArray(options.queries), ERRORS.NOT_AN_ARRAY);
-		// Add this to our query
-		applyRawParameter(this._query, 'query.dis_max', options);
+		// Check if we have other queries to apply
+		if (this.hasQuery()) {
+			// Add the options to a boolean filter
+			applyRawParameter(this._query, 'query.bool.filter', [
+				super.build(),
+				{ dis_max: options }
+			]);
+		} else {
+			// Add the options to our query
+			applyRawParameter(this._query, 'query.dis_max', options);
+		}
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
 		return this._query;
@@ -123,8 +138,17 @@ class QueryBuilder extends BaseBuilder {
 	*/
 	buildMultiMatch (options = {}) {
 		invariant(Array.isArray(options.fields) && options.query, ERRORS.MULTI_MATCH_ARGS);
-		// Add the options to our query
-		applyRawParameter(this._query, 'query.multi_match', options);
+		// Check if we have other queries to apply
+		if (this.hasQuery()) {
+			// Add the options to a boolean filter
+			applyRawParameter(this._query, 'query.bool.filter', [
+				super.build(),
+				{ multi_match: options }
+			]);
+		} else {
+			// Add the options to our query
+			applyRawParameter(this._query, 'query.multi_match', options);
+		}
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
 		return this._query;

@@ -12,6 +12,9 @@ describe('QueryBuilder - Build Aggregations', () => {
 			from: 0,
 			size: 15,
 			explain: true,
+			query: {
+				match_all: {}
+			},
 			aggs: {
 				count: {
 					avg: {
@@ -35,6 +38,9 @@ describe('QueryBuilder - Build Aggregations', () => {
 		expect(query).toEqual({
 			from: 0,
 			size: 15,
+			query: {
+				match_all: {}
+			},
 			aggs: {
 				games: {
 					terms: {
@@ -55,6 +61,9 @@ describe('QueryBuilder - Build Aggregations', () => {
 		expect(query).toEqual({
 			from: 0,
 			size: 15,
+			query: {
+				match_all: {}
+			},
 			aggs: {
 				games: {
 					terms: {
@@ -84,6 +93,9 @@ describe('QueryBuilder - Build Aggregations', () => {
 		expect(query).toEqual({
 			from: 0,
 			size: 15,
+			query: {
+				match_all: {}
+			},
 			aggs: {
 				location: {
 					geo_distance: {
@@ -121,6 +133,9 @@ describe('QueryBuilder - Build Aggregations', () => {
 		expect(query).toEqual({
 			from: 0,
 			size: 15,
+			query: {
+				match_all: {}
+			},
 			aggs: {
 				locations: {
 					nested: {
@@ -132,6 +147,30 @@ describe('QueryBuilder - Build Aggregations', () => {
 								field: 'locations.city'
 							}
 						}
+					}
+				}
+			}
+		});
+	});
+
+	test('should allow filters to be added to a normal aggregation', () => {
+		const query = new QueryBuilder()
+			.must('match', 'school', 'South Park Elementary')
+			.aggs('avg', 'count')
+			.buildAggregation();
+
+		expect(query).toEqual({
+			from: 0,
+			size: 15,
+			query: {
+				match: {
+					school: 'South Park Elementary'
+				}
+			},
+			aggs: {
+				count: {
+					avg: {
+						field: 'count'
 					}
 				}
 			}

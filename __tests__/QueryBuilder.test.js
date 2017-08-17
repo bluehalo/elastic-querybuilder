@@ -181,6 +181,43 @@ describe('QueryBuilder', () => {
 			});
 		});
 
+		test('should build a dis_max query with filters and options', () => {
+			const query = new QueryBuilder()
+				.must('match', 'enemy', 'Cartman')
+				.buildDisMax({
+					queries: mocks.dis_max_queries,
+					tie_breaker: 1.2,
+					boost: 2
+				});
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					bool: {
+						filter: [
+							{
+								match: {
+									enemy: 'Cartman'
+								}
+							},
+							{
+								dis_max: {
+									queries: [
+										{ term: { age: 31 }},
+										{ term: { age: 32 }},
+										{ term: { age: 33 }}
+									],
+									tie_breaker: 1.2,
+									boost: 2
+								}
+							}
+						]
+					}
+				}
+			});
+		});
+
 	});
 
 	describe('buildMultiMatch', () => {
@@ -254,6 +291,43 @@ describe('QueryBuilder', () => {
 						type: 'best_fields',
 						tie_breaker: 0.3,
 						minimum_should_match: '30%'
+					}
+				}
+			});
+		});
+
+		test('should build a multi_match with filters and options', () => {
+			const query = new QueryBuilder()
+				.must('match', 'grade', '4th')
+				.buildMultiMatch({
+					query: mocks.multi_match.query,
+					fields: mocks.multi_match.fields,
+					type: 'best_fields',
+					tie_breaker: 0.3,
+					minimum_should_match: '30%'
+				});
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					bool: {
+						filter: [
+							{
+								match: {
+									grade: '4th'
+								}
+							},
+							{
+								multi_match: {
+									query: 'The Coon',
+									fields: ['superhero', 'name', 'alias'],
+									type: 'best_fields',
+									tie_breaker: 0.3,
+									minimum_should_match: '30%'
+								}
+							}
+						]
 					}
 				}
 			});
