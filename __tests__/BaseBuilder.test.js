@@ -30,6 +30,22 @@ describe('BaseBuilder', () => {
 		});
 	});
 
+	test('should create a simple query with the additional options', () => {
+		const query = new BaseBuilder()
+			.query('match', 'first_name', { query: 'Cartman', boost: 2.4, fuzziness: 'auto' })
+			.build();
+
+		expect(query).toEqual({
+			match: {
+				first_name: {
+					query: 'Cartman',
+					boost: 2.4,
+					fuzziness: 'auto'
+				}
+			}
+		});
+	});
+
 	test('should allow me to chain bool methods', () => {
 		const query = new BaseBuilder()
 			.must('match', 'material', 'cotton')
