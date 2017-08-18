@@ -4,9 +4,10 @@ describe('QueryBuilder - Build Aggregations', () => {
 
 	test('should build a simple aggregation', () => {
 		const query = new QueryBuilder()
+			.query('match_all')
 			.raw('explain', true)
 			.aggs('avg', 'count')
-			.buildAggregation();
+			.build();
 
 		expect(query).toEqual({
 			from: 0,
@@ -27,11 +28,12 @@ describe('QueryBuilder - Build Aggregations', () => {
 
 	test('should build a simple aggregation with an object for the value arg', () => {
 		const query = new QueryBuilder()
+			.query('match_all')
 			.aggs('terms', {
 				field: 'games',
 				exclude: 'Call.*'
 			})
-			.buildAggregation();
+			.build();
 
 		// The below method is preferred, this is available since we need this method
 		// for nested aggregations
@@ -54,8 +56,9 @@ describe('QueryBuilder - Build Aggregations', () => {
 
 	test('should build a simple aggregation with some extra options', () => {
 		const query = new QueryBuilder()
+			.query('match_all')
 			.aggs('terms', 'games', { exclude: 'Call.*' })
-			.buildAggregation();
+			.build();
 
 		// Same as above except a little more obvious
 		expect(query).toEqual({
@@ -77,6 +80,7 @@ describe('QueryBuilder - Build Aggregations', () => {
 
 	test('should be able to handle multiple aggregations in one query', () => {
 		const query = new QueryBuilder()
+			.query('match_all')
 			.aggs('geo_distance', 'location', {
 				origin: '52.3760, 4.894',
 				unit: 'km',
@@ -88,7 +92,7 @@ describe('QueryBuilder - Build Aggregations', () => {
 			})
 			.aggs('max', 'price')
 			.aggs('sum', 'sales')
-			.buildAggregation();
+			.build();
 
 		expect(query).toEqual({
 			from: 0,
@@ -125,10 +129,11 @@ describe('QueryBuilder - Build Aggregations', () => {
 
 	test('should build a nested type aggregation', () => {
 		const query = new QueryBuilder()
+			.query('match_all')
 			.aggs('nested', { path: 'locations' }, builder => builder
 				.aggs('terms', 'locations.city')
 			)
-			.buildAggregation();
+			.build();
 
 		expect(query).toEqual({
 			from: 0,
@@ -157,7 +162,7 @@ describe('QueryBuilder - Build Aggregations', () => {
 		const query = new QueryBuilder()
 			.must('match', 'school', 'South Park Elementary')
 			.aggs('avg', 'count')
-			.buildAggregation();
+			.build();
 
 		expect(query).toEqual({
 			from: 0,
@@ -183,8 +188,8 @@ describe('QueryBuilder - Build Aggregations', () => {
 			.must('match', 'grade', '4th')
 			.must('match', 'enemy', 'Cartman')
 			.should('match', 'gender', 'female')
-			.filteredAggs({ field: 'grade', size: 12 })
-			.build();
+			.aggs('terms', 'grade', { size: 12 })
+			.build({ filterAggs: true });
 
 		expect(query).toEqual({
 			from: 0,

@@ -17,10 +17,9 @@ class BaseBuilder {
 		* We do this so it is trivial to filter them for filtered aggregations at a later point.
 		*/
 		this._queries = [];
-		this._filteredAggs = [];
-		/**
-		* Let's build this one up as we go instead of pushing descriptors in it
-		*/
+
+		this._funcs = [];
+		this._sorts = [];
 		this._aggs = {};
 	}
 
@@ -108,17 +107,29 @@ class BaseBuilder {
 	}
 
 	/**
-	* @description Add a field that will be used to generate filtered aggregations
-	* based on your current boolean filters. Use this for accurate facet counts.
-	* @param {Object} agg - Options for the aggregation
-	* @param {number} agg.size - Maximum number of aggregations to include in the response
-	* @param {string} agg.field - Field name to aggregate on
-	* @param {string} agg.include - pattern to include in the buckets list
-	* @param {string} agg.exclude - pattern to exclude in the buckets list
+	* @description Add options for sorting
+	* @param {string} field - Field/type for sorting
+	* @param {string|Object} value - Value of the Field/Type
 	* @return {BaseBuilder} this
 	*/
-	filteredAggs (agg) {
-		this._filteredAggs.push(agg);
+	sort (field, value) {
+		this._sorts.push({ [field]: value });
+		return this;
+	}
+
+	/**
+	* @description Add functions for function_score queries
+	* @param {string|Object} field - Field/type for functions
+	* @param {string|Object} value - Value of the Field/Type
+	* @return {BaseBuilder} this
+	*/
+	func (field, value) {
+		// If field is an object, push the whole function object in, else, make it an object
+		const func = typeof field === 'string'
+			? { [field]: value }
+			: field;
+
+		this._funcs.push(func);
 		return this;
 	}
 
@@ -131,6 +142,54 @@ class BaseBuilder {
 	}
 
 	/**
+	* @description Do we have non-filtered aggregations to build
+	* @return {boolean}
+	*/
+	hasAggs () {
+		return Object.getOwnPropertyNames(this._aggs).length;
+	}
+
+	/**
+	* @description Do we have any sorting operations to apply
+	* @return {boolean}
+	*/
+	hasSort () {
+		return this._sorts.length;
+	}
+
+	/**
+	* @description Return our query descriptors
+	* @return {Array<Object>} - Array of query objects
+	*/
+	getQueries () {
+		return this._queries;
+	}
+
+	/**
+	* @description Return our aggs, these were built up as we go
+	* @return {Object} - ES Aggregations
+	*/
+	getAggs () {
+		return this._aggs;
+	}
+
+	/**
+	* @description Return our sorting options
+	* @return {Array<Object>} - Array of sort objects
+	*/
+	getSorts () {
+		return this._sorts;
+	}
+
+	/**
+	* @description Return our functions
+	* @return {Array<Object>} - Array of functions
+	*/
+	getFuncs () {
+		return this._funcs;
+	}
+
+	/**
 	* @description Build an ES Boolean Query
 	* @return {Object} - ES Query
 	*/
@@ -138,14 +197,6 @@ class BaseBuilder {
 		return this._queries.length
 			? prepareBoolQuery(this._queries)
 			: {};
-	}
-
-	/**
-	* @description Return our aggs, these were built up as we go
-	* @return {Object} - ES Aggregations
-	*/
-	buildAggs () {
-		return this._aggs;
 	}
 
 }

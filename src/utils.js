@@ -107,25 +107,24 @@ const prepareBoolQuery = (descriptors) => {
 };
 
 /**
-* @description Prepare a filtered aggregation query
-* @param {Object} options
-* @param {string} options.name - top-level name for the aggregations
-* @param {Array<Object>} options.aggregations - Array of aggregation objects containing at minimum a field property
-* @param {Array<Object>} options.descriptors - Array of boolean descriptors used to filter our aggs
+* @description Add filters to our aggregations
+* @param {Array<Object>} aggs - Array of aggregation objects containing at minimum a field property
+* @param {Array<Object>} descriptors - Array of boolean descriptors used to filter our aggs
+* @param {string} name - top-level name for the aggregations
+* @return {Object} Aggregations with filters applied
 */
-const prepareFilteredAggregation = ({ name = 'all', aggregations, descriptors } = {}) => {
-	invariant(Array.isArray(aggregations) && Array.isArray(descriptors), ERRORS.NOT_AN_ARRAY);
-
-	const aggs = aggregations.reduce((all, aggregate) => {
+const prepareFilteredAggregation = (aggs, descriptors, name = 'all') => {
+	invariant(Array.isArray(descriptors), ERRORS.NOT_AN_ARRAY);
+	// This function is modifying already built aggregations
+	const filtered = Object.getOwnPropertyNames(aggs).reduce((all, agg_name) => {
 		// Remove any descriptors if they have the same field as this aggregation
-		const boolQueries = descriptors
-			.filter(descriptor => descriptor.field !== aggregate.field)
+		const bool = descriptors
+			.filter(descriptor => descriptor.field !== agg_name)
 			.reduce(reduceBoolQueries, {});
 
-		// Create our aggregation entry
-		all[aggregate.field] = {
-			filter: { bool: boolQueries },
-			aggs: { [aggregate.field]: { terms: aggregate }}
+		all[agg_name] = {
+			filter: { bool },
+			aggs: { [agg_name]: aggs[agg_name] }
 		};
 
 		return all;
@@ -133,7 +132,7 @@ const prepareFilteredAggregation = ({ name = 'all', aggregations, descriptors } 
 
 	return {
 		[name]: {
-			aggs,
+			aggs: filtered,
 			global: {}
 		}
 	};
@@ -149,7 +148,7 @@ const saveAggs = (...params) => {
 	if (typeof last(args) === 'function') {
 		const func = args.pop();
 		const results = func(new Builder());
-		nested.aggs = results.buildAggs();
+		nested.aggs = results.getAggs();
 	}
 
 	// Parse out remaining values and store them for later

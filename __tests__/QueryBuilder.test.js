@@ -14,7 +14,16 @@ const mocks = {
 	multi_match: {
 		query: 'The Coon',
 		fields: ['superhero', 'name', 'alias']
-	}
+	},
+	functions: [
+		{
+			field_value_factor: {
+				field: 'number_of_detentions',
+				factor: 1,
+				modifier: 'ln2p'
+			}
+		}
+	]
 };
 
 describe('QueryBuilder', () => {
@@ -122,6 +131,71 @@ describe('QueryBuilder', () => {
 						should: {
 							match_phrase: { most_common_question: 'Who is Mysterion?' }
 						}
+					}
+				}
+			});
+		});
+
+		test('should build a simple query with sorting options', () => {
+			const query = new QueryBuilder()
+				.must('match', 'grade', '4th')
+				.sort('gpa', { order: 'desc', mode: 'avg' })
+				.build();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					match: {
+						grade: '4th'
+					}
+				},
+				sort: [{
+					gpa: {
+						order: 'desc',
+						mode: 'avg'
+					}
+				}]
+			});
+		});
+
+		test('should build a function score query with filters, functions, and settings', () => {
+			const query = new QueryBuilder()
+				.raw('query.function_score.functions', mocks.functions)
+				.raw('query.function_score.score_mode', 'sum')
+				.raw('query.function_score.boost_mode', 'sum')
+				.query('function_score', builder => builder
+					.query('dis_max', {
+						tie_breaker: 1,
+						queries: mocks.dis_max_queries
+					})
+				)
+				.build();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: {
+							dis_max: {
+								tie_breaker: 1,
+								queries: [
+									{ term: { age: 31 }},
+									{ term: { age: 32 }},
+									{ term: { age: 33 }}
+								]
+							}
+						},
+						functions: [{
+							field_value_factor: {
+								field: 'number_of_detentions',
+								factor: 1,
+								modifier: 'ln2p'
+							}
+						}],
+						score_mode: 'sum',
+						boost_mode: 'sum'
 					}
 				}
 			});
@@ -328,6 +402,241 @@ describe('QueryBuilder', () => {
 								}
 							}
 						]
+					}
+				}
+			});
+		});
+
+		test('should build simple multi_match with sort options', () => {
+			const query = new QueryBuilder()
+				.sort('_geo_distance', {
+					coordinates: [ -70, 40 ],
+					distance_type: 'arc',
+					order: 'asc',
+					unit: 'mi',
+					mode: 'min'
+				})
+				.buildMultiMatch({
+					query: mocks.multi_match.query,
+					fields: mocks.multi_match.fields,
+					type: 'best_fields',
+					tie_breaker: 0.3,
+					minimum_should_match: '30%'
+				});
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					multi_match: {
+						query: 'The Coon',
+						fields: ['superhero', 'name', 'alias'],
+						type: 'best_fields',
+						tie_breaker: 0.3,
+						minimum_should_match: '30%'
+					}
+				},
+				sort: [{
+					_geo_distance: {
+						coordinates: [ -70, 40 ],
+						distance_type: 'arc',
+						order: 'asc',
+						unit: 'mi',
+						mode: 'min'
+					}
+				}]
+			});
+		});
+
+	});
+
+	describe('buildFunctionScore', () => {
+
+		test('should build a function_score query with no query', () => {
+			const query = new QueryBuilder()
+				.buildFunctionScore();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: {},
+						functions: []
+					}
+				}
+			});
+		});
+
+		test('should build a function_score query with a query and some functions', () => {
+			const query = new QueryBuilder()
+				.func('field_value_factor', {
+					field: 'number_of_detentions',
+					modifier: 'ln2p',
+					factor: 1
+				})
+				.must('dis_max', {
+					tie_breaker: 1,
+					queries: [{
+						match: { alias: 'The Coon' }
+					}]
+				})
+				.buildFunctionScore();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: {
+							dis_max: {
+								tie_breaker: 1,
+								queries: [{
+									match: {
+										alias: 'The Coon'
+									}
+								}]
+							}
+						},
+						functions: [{
+							field_value_factor: {
+								field: 'number_of_detentions',
+								modifier: 'ln2p',
+								factor: 1
+							}
+						}]
+					}
+				}
+			});
+		});
+
+		test('should incorporate raw parameters', () => {
+			const query = new QueryBuilder()
+				.raw('query.function_score.score_mode', 'sum')
+				.must('match', 'city', 'South Park')
+				.func({
+					filter: {
+						match: {
+							state: 'Colorado'
+						}
+					},
+					weight: 100
+				})
+				.buildFunctionScore();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: {
+							match: {
+								city: 'South Park'
+							}
+						},
+						functions: [{
+							filter: {
+								match: {
+									state: 'Colorado'
+								}
+							},
+							weight: 100
+						}],
+						score_mode: 'sum'
+					}
+				}
+			});
+		});
+
+		test('should include unfiltered aggregations in the query', () => {
+			const query = new QueryBuilder()
+				.query('match_all')
+				.func('field_value_factor', { field: 'state' })
+				.aggs('terms', 'grade')
+				.buildFunctionScore();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: {
+							match_all: {}
+						},
+						functions: [{
+							field_value_factor: {
+								field: 'state'
+							}
+						}]
+					}
+				},
+				aggs: {
+					grade: {
+						terms: {
+							field: 'grade'
+						}
+					}
+				}
+			});
+		});
+
+		test('should include filtered aggregations in the query', () => {
+			const query = new QueryBuilder()
+				.query('match', 'grade', '4th')
+				.query('match', 'state', 'Colorado')
+				.func('field_value_factor', { field: 'state' })
+				.aggs('terms', 'grade', { size: 12 })
+				.buildFunctionScore({ filterAggs: true });
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: {
+							bool: {
+								must: [{
+									match: {
+										grade: '4th'
+									}
+								}, {
+									match: {
+										state: 'Colorado'
+									}
+								}]
+							}
+						},
+						functions: [{
+							field_value_factor: {
+								field: 'state'
+							}
+						}]
+					}
+				},
+				aggs: {
+					all: {
+						global: {},
+						aggs: {
+							grade: {
+								aggs: {
+									grade: {
+										terms: {
+											field: 'grade',
+											size: 12
+										}
+									}
+								},
+								filter: {
+									bool: {
+										must: {
+											match: {
+												state: 'Colorado'
+											}
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			});

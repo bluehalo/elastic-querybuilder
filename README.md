@@ -232,15 +232,19 @@ builder.aggs(
 Simple Aggregation
 ```javascript
 const query = new QueryBuilder()
+  .query('match_all')
   .raw('explain', true)
   .aggs('avg', 'count')
-  .buildAggregation();
+  .build();
 
 //- Generates the following query
 {
   from: 0,
   size: 15,
   explain: true,
+  query: {
+    match_all: {}
+  },
   aggs: {
     count: {
       avg: {
@@ -254,6 +258,7 @@ const query = new QueryBuilder()
 Multiple Aggregations
 ```javascript
 const query = new QueryBuilder()
+  .query('match_all')
   .aggs('geo_distance', 'location', {
     origin: '52.3760, 4.894',
     unit: 'km',
@@ -265,12 +270,15 @@ const query = new QueryBuilder()
   })
   .aggs('max', 'price')
   .aggs('sum', 'sales')
-  .buildAggregation()
+  .build()
 
 //- Generates the following query
 {
   from: 0,
   size: 15,
+  query: {
+    match_all: {}
+  },
   aggs: {
     location: {
       geo_distance: {
@@ -302,15 +310,19 @@ const query = new QueryBuilder()
 Nested Aggregations
 ```javascript
 const query = new QueryBuilder()
+  .query('match_all')
   .aggs('nested', { path: 'locations' }, builder => builder
     .aggs('terms', 'locations.city')
   )
-  .buildAggregation()
+  .build()
 
 //- Generates the following query
 {
   from: 0,
   size: 15,
+  query: {
+    match_all: {}
+  },
   aggs: {
     locations: {
       nested: {
@@ -328,67 +340,139 @@ const query = new QueryBuilder()
 }
 ```
 
-##### `filteredAggs`
-> Add aggregations to your query that will be filtered based on the current query. These will also filter out any filters that would apply to the aggregation field so that agg counters (facet counters) would be correct. See [this article](https://blog.madewithlove.be/post/faceted-search-using-elasticsearch/) for a good explanation
+##### `sort`
+> Add sorting options. This method essentially just takes a key and a value for an object.
 
 ```javascript
-builder.filteredAggs(
-  options: {
-    field: string,
-    size: number,
-    include: string, 
-    exclude: string,
-    // Can include any other valid properties to associate with an aggregation 
-  }
+builder.sort(
+  field?: string, // or Type of sort, could be something like _geo_distance
+  value?: string|Object
 )
 ```
 
 ###### Examples
-> See  [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
 
-Adding filtered aggreations to a boolean query
+Simple sort
 ```javascript
 const query = new QueryBuilder()
-  .must('match', 'grade', '4th')
-  .must('match', 'gender', 'female')
-  .filteredAggs({ field: 'grade', size: 12, exclude: 'Kindergarten' })
+  .query( ... )
+  .sort('age', 'desc')
   .build();
+  
+//- Generates the following query
+{
+  from: 0,
+  size: 15,
+  query: { ... },
+  sort: [
+    { age: 'desc' }
+  ]
+}
+```
 
+Geo distance sort
+```javascript
+const query = new QueryBuilder()
+  .query( ... )
+  .sort('_geo_distance', {
+    coordinates: [ -70, 40 ],
+    distance_type: 'arc',
+    order: 'asc',
+    unit: 'mi',
+    mode: 'min'
+  })
+  .build();
+  
+//- Generates the following query
+{
+  from: 0,
+  size: 15,
+  query: { ... },
+  sort: [
+    {
+      _geo_distance: {
+        coordinates: [ -70, 40 ],
+        distance_type: 'arc',
+        order: 'asc',
+        unit: 'mi',
+        mode: 'min'
+      }
+    }
+  ]
+}
+```
+
+##### `func`
+> Add functions to be used in function_score queries. This method essentially just takes a key and a value for an object and is only used when calling `buildFunctionScore`.
+
+```javascript
+builder.func(
+  field?: string|Object, // or Type of function
+  value?: string|Object
+)
+```
+
+###### Examples
+
+Field value factor function
+```javascript
+const query = new QueryBuilder()
+  .query( ... )
+  .func('field_value_factor', {
+    field: 'number_of_something',
+    modifier: 'ln2p',
+    factor: 1
+  })
+  .buildFunctionScore();
+  
 //- Generates the following query
 {
   from: 0,
   size: 15,
   query: {
-    bool: {
-      must: [
-        { match: { grade: '4th' }},
-        { match: { gender: 'female' }}
-      ]
+    function_score: {
+      query: { ... },
+      functions: [{
+        field_value_factor: {
+          field: 'number_of_something',
+          modifier: 'ln2p',
+          factor: 1
+        }
+      }]
     }
-  },
-  aggs: {
-    all: {
-      global: {},
-      aggs: {
-        grade: {
-          aggs: {
-            grade: {
-              terms: {
-                field: 'grade',
-                size: 12,
-                exclude: 'Kindergarten'
-              }
-            }
-          },
-          filter: {
-            bool: {
-              must: [
-                { match: { gender: 'female' }}
-              ]
-            }
+  }
+}
+```
+
+Filter function
+```javascript
+const query = new QueryBuilder()
+  .query( ... )
+  .func({
+    weight: 100,
+    filter: {
+      match: {
+        state: 'Colorado'
+      }
+    }
+  })
+  .buildFunctionScore();
+  
+//- Generates the following query
+{
+  from: 0,
+  size: 15,
+  query: {
+    function_score: {
+      query: { ... },
+      functions: [{
+        weight: 100,
+        filter: {
+          match: {
+            state: 'Colorado'
           }
         }
-      }
+      }]
     }
   }
 }
@@ -397,22 +481,17 @@ const query = new QueryBuilder()
 ### Build Functions
 
 ##### `build`
-> Build your basic query. This includes parameters set using `query`, `must`, `should`, `filter`, `must_not`, `filteredAggs`, `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
+> Build your basic query. This includes parameters set using `query`, `must`, `should`, `filter`, `must_not`, `aggs`, `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
 
 ```javascript
 builder.build(
   options?: {
-    // Name for your top level aggregations, default is 'all'
-    name?: string
+    // Name for your filtered aggregations, default is 'all'
+    name?: string,
+    // Add filters to your aggregations, better for accurate facet counts
+    filterAggs?: boolean
   }
 ): Object
-```
-
-##### `buildAggregation`
-> Build your basic query. This includes parameters set using `aggs`, `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
-
-```javascript
-builder.buildAggregation(): Object
 ```
 
 ##### `buildDisMax`
@@ -506,6 +585,20 @@ const query = new QueryBuilder()
     }
   }
 }
+```
+
+##### `buildFunctionScore`
+> Build your basic query. This includes parameters set using `query`, `must`, `should`, `filter`, `must_not`, `aggs`, `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
+
+```javascript
+builder.buildFunctionScore(
+  options?: {
+    // Name for your filtered aggregations, default is 'all'
+    name?: string,
+    // Add filters to your aggregations, better for accurate facet counts
+    filterAggs?: boolean
+  }
+): Object
 ```
 
 ## Contributing
