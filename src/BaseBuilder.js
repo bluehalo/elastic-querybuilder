@@ -119,7 +119,7 @@ class BaseBuilder {
 
 	/**
 	* @description Add functions for function_score queries
-	* @param {string|Object} field - Field/type for sorting
+	* @param {string|Object} field - Field/type for functions
 	* @param {string|Object} value - Value of the Field/Type
 	* @return {BaseBuilder} this
 	*/
@@ -182,7 +182,7 @@ class BaseBuilder {
 	}
 
 	/**
-	* @description Return our sorting options
+	* @description Return our functions
 	* @return {Array<Object>} - Array of functions
 	*/
 	getFuncs () {
