@@ -18,6 +18,7 @@ class BaseBuilder {
 		*/
 		this._queries = [];
 
+		this._funcs = [];
 		this._sorts = [];
 		this._aggs = {};
 	}
@@ -117,6 +118,22 @@ class BaseBuilder {
 	}
 
 	/**
+	* @description Add functions for function_score queries
+	* @param {string|Object} field - Field/type for sorting
+	* @param {string|Object} value - Value of the Field/Type
+	* @return {BaseBuilder} this
+	*/
+	func (field, value) {
+		// If field is an object, push the whole function object in, else, make it an object
+		const func = typeof field === 'string'
+			? { [field]: value }
+			: field;
+
+		this._funcs.push(func);
+		return this;
+	}
+
+	/**
 	* @description Do we have boolean queries to build
 	* @return {boolean}
 	*/
@@ -141,13 +158,11 @@ class BaseBuilder {
 	}
 
 	/**
-	* @description Build an ES Boolean Query
-	* @return {Object} - ES Query
+	* @description Return our query descriptors
+	* @return {Array<Object>} - Array of query objects
 	*/
-	build () {
-		return this._queries.length
-			? prepareBoolQuery(this._queries)
-			: {};
+	getQueries () {
+		return this._queries;
 	}
 
 	/**
@@ -164,6 +179,24 @@ class BaseBuilder {
 	*/
 	getSorts () {
 		return this._sorts;
+	}
+
+	/**
+	* @description Return our sorting options
+	* @return {Array<Object>} - Array of functions
+	*/
+	getFuncs () {
+		return this._funcs;
+	}
+
+	/**
+	* @description Build an ES Boolean Query
+	* @return {Object} - ES Query
+	*/
+	build () {
+		return this._queries.length
+			? prepareBoolQuery(this._queries)
+			: {};
 	}
 
 }

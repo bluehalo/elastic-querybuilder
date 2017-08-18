@@ -60,6 +60,7 @@ class QueryBuilder extends BaseBuilder {
 	* @description Build our boolean ES query
 	* @param {Object} options
 	* @param {boolean} options.name - Name for your filtered aggregations, default is 'all'
+	* @param {boolean} options.filterAggs - Whether of not to apply filters to an aggregation
 	* @return An elasticsearch query
 	*/
 	build (options = {}) {
@@ -68,7 +69,7 @@ class QueryBuilder extends BaseBuilder {
 		if (this.hasAggs() && options.filterAggs) {
 			applyRawParameter(this._query, 'aggs', prepareFilteredAggregation(
 				this.getAggs(),
-				this._queries,
+				this.getQueries(),
 				options.name
 			));
 		}
@@ -147,6 +148,35 @@ class QueryBuilder extends BaseBuilder {
 			applyRawParameter(this._query, 'sort', this.getSorts());
 		}
 		// finally add any raw parameter that may exist
+		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
+		return this._query;
+	}
+
+	/**
+	* @description Build our function_score ES query
+	* @param {Object} options
+	* @param {boolean} options.name - Name for your filtered aggregations, default is 'all'
+	* @param {boolean} options.filterAggs - Whether of not to apply filters to an aggregation
+	* @return An elasticsearch query
+	*/
+	buildFunctionScore (options = {}) {
+		// Apply all of our queries
+		applyRawParameter(this._query, 'query.function_score.query', super.build());
+		// Apply any functions
+		applyRawParameter(this._query, 'query.function_score.functions', this.getFuncs());
+		// Add filtered aggregations if we have any
+		if (this.hasAggs() && options.filterAggs) {
+			applyRawParameter(this._query, 'aggs', prepareFilteredAggregation(
+				this.getAggs(),
+				this.getQueries(),
+				options.name
+			));
+		}
+		// Add aggregations if we have any
+		else if (this.hasAggs()) {
+			applyRawParameter(this._query, 'aggs', this.getAggs());
+		}
+		// Add any raw parameters
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
 		return this._query;
 	}

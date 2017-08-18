@@ -450,4 +450,198 @@ describe('QueryBuilder', () => {
 
 	});
 
+	describe('buildFunctionScore', () => {
+
+		test('should build a function_score query with no query', () => {
+			const query = new QueryBuilder()
+				.buildFunctionScore();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: {},
+						functions: []
+					}
+				}
+			});
+		});
+
+		test('should build a function_score query with a query and some functions', () => {
+			const query = new QueryBuilder()
+				.func('field_value_factor', {
+					field: 'number_of_detentions',
+					modifier: 'ln2p',
+					factor: 1
+				})
+				.must('dis_max', {
+					tie_breaker: 1,
+					queries: [{
+						match: { alias: 'The Coon' }
+					}]
+				})
+				.buildFunctionScore();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: {
+							dis_max: {
+								tie_breaker: 1,
+								queries: [{
+									match: {
+										alias: 'The Coon'
+									}
+								}]
+							}
+						},
+						functions: [{
+							field_value_factor: {
+								field: 'number_of_detentions',
+								modifier: 'ln2p',
+								factor: 1
+							}
+						}]
+					}
+				}
+			});
+		});
+
+		test('should incorporate raw parameters', () => {
+			const query = new QueryBuilder()
+				.raw('query.function_score.score_mode', 'sum')
+				.must('match', 'city', 'South Park')
+				.func({
+					filter: {
+						match: {
+							state: 'Colorado'
+						}
+					},
+					weight: 100
+				})
+				.buildFunctionScore();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: {
+							match: {
+								city: 'South Park'
+							}
+						},
+						functions: [{
+							filter: {
+								match: {
+									state: 'Colorado'
+								}
+							},
+							weight: 100
+						}],
+						score_mode: 'sum'
+					}
+				}
+			});
+		});
+
+		test('should include unfiltered aggregations in the query', () => {
+			const query = new QueryBuilder()
+				.query('match_all')
+				.func('field_value_factor', { field: 'state' })
+				.aggs('terms', 'grade')
+				.buildFunctionScore();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: {
+							match_all: {}
+						},
+						functions: [{
+							field_value_factor: {
+								field: 'state'
+							}
+						}]
+					}
+				},
+				aggs: {
+					grade: {
+						terms: {
+							field: 'grade'
+						}
+					}
+				}
+			});
+		});
+
+		test('should include filtered aggregations in the query', () => {
+			const query = new QueryBuilder()
+				.query('match', 'grade', '4th')
+				.query('match', 'state', 'Colorado')
+				.func('field_value_factor', { field: 'state' })
+				.aggs('terms', 'grade', { size: 12 })
+				.buildFunctionScore({ filterAggs: true });
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: {
+							bool: {
+								must: [{
+									match: {
+										grade: '4th'
+									}
+								}, {
+									match: {
+										state: 'Colorado'
+									}
+								}]
+							}
+						},
+						functions: [{
+							field_value_factor: {
+								field: 'state'
+							}
+						}]
+					}
+				},
+				aggs: {
+					all: {
+						global: {},
+						aggs: {
+							grade: {
+								aggs: {
+									grade: {
+										terms: {
+											field: 'grade',
+											size: 12
+										}
+									}
+								},
+								filter: {
+									bool: {
+										must: {
+											match: {
+												state: 'Colorado'
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			});
+		});
+
+	});
+
 });

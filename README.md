@@ -345,8 +345,7 @@ const query = new QueryBuilder()
 
 ```javascript
 builder.sort(
-  // or Type of sort, could be _geo_distance
-  field?: string,
+  field?: string, // or Type of sort, could be something like _geo_distance
   value?: string|Object
 )
 ```
@@ -403,6 +402,67 @@ const query = new QueryBuilder()
 }
 ```
 
+##### `func`
+> Add functions to be used in function_score queries. This method essentially just takes a key and a value for an object and is only used when calling `buildFunctionScore`.
+
+```javascript
+builder.func(
+  field?: string, // or Type of function
+  value?: string|Object
+)
+```
+
+###### Examples
+
+Simple sort
+```javascript
+const query = new QueryBuilder()
+  .query( ... )
+  .sort('age', 'desc')
+  .build();
+  
+//- Generates the following query
+{
+  from: 0,
+  size: 15,
+  query: { ... },
+  sort: [
+    { age: 'desc' }
+  ]
+}
+```
+
+Geo distance sort
+```javascript
+const query = new QueryBuilder()
+  .query( ... )
+  .sort('_geo_distance', {
+    coordinates: [ -70, 40 ],
+    distance_type: 'arc',
+    order: 'asc',
+    unit: 'mi',
+    mode: 'min'
+  })
+  .build();
+  
+//- Generates the following query
+{
+  from: 0,
+  size: 15,
+  query: { ... },
+  sort: [
+    {
+      _geo_distance: {
+        coordinates: [ -70, 40 ],
+        distance_type: 'arc',
+        order: 'asc',
+        unit: 'mi',
+        mode: 'min'
+      }
+    }
+  ]
+}
+```
 
 ### Build Functions
 
@@ -511,6 +571,20 @@ const query = new QueryBuilder()
     }
   }
 }
+```
+
+##### `buildFunctionScore`
+> Build your basic query. This includes parameters set using `query`, `must`, `should`, `filter`, `must_not`, `aggs`, `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
+
+```javascript
+builder.buildFunctionScore(
+  options?: {
+    // Name for your filtered aggregations, default is 'all'
+    name?: string,
+    // Add filters to your aggregations, better for accurate facet counts
+    filterAggs?: boolean
+  }
+): Object
 ```
 
 ## Contributing
