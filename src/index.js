@@ -64,33 +64,24 @@ class QueryBuilder extends BaseBuilder {
 	*/
 	build (options = {}) {
 		applyRawParameter(this._query, 'query', super.build());
-		// Add filtered aggregations if necessary
-		if (this._filteredAggs.length) {
-			applyRawParameter(this._query, 'aggs', prepareFilteredAggregation({
-				name: options.name || 'all',
-				aggregations: this._filteredAggs,
-				descriptors: this._queries
-			}));
+		// Add filtered aggregations if we have any
+		if (this.hasAggs() && options.filterAggs) {
+			applyRawParameter(this._query, 'aggs', prepareFilteredAggregation(
+				this.getAggs(),
+				this._queries,
+				options.name
+			));
+		}
+		// Add aggregations if we have any
+		else if (this.hasAggs()) {
+			applyRawParameter(this._query, 'aggs', this.getAggs());
 		}
 
-		// finally add any raw parameter that may exist
-		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
-		return this._query;
-	}
-
-	/**
-	* @description Build our ES Aggregations
-	* @return An elasticsearch aggregation query
-	*/
-	buildAggregation () {
-		// Add a query if we do not have one so the aggs have data to aggregate
-		if (!this.hasQuery()) {
-			this.query('match_all');
+		// Add our sorting options
+		if (this.hasSort()) {
+			applyRawParameter(this._query, 'sort', this.getSorts());
 		}
-		// Add our query
-		applyRawParameter(this._query, 'query', super.build());
-		// Merge in our aggregations
-		applyRawParameter(this._query, 'aggs', super.buildAggs());
+
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
 		return this._query;
@@ -119,6 +110,7 @@ class QueryBuilder extends BaseBuilder {
 			// Add the options to our query
 			applyRawParameter(this._query, 'query.dis_max', options);
 		}
+
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
 		return this._query;
@@ -148,6 +140,11 @@ class QueryBuilder extends BaseBuilder {
 		} else {
 			// Add the options to our query
 			applyRawParameter(this._query, 'query.multi_match', options);
+		}
+
+		// Add our sorting options
+		if (this.hasSort()) {
+			applyRawParameter(this._query, 'sort', this.getSorts());
 		}
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));

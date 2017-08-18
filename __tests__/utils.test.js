@@ -41,12 +41,14 @@ const mocks = {
 			field: 'alias'
 		}
 	],
-	aggregations: [
-		{
-			field: 'grade',
-			size: 20
+	aggregations: {
+		grade: {
+			terms: {
+				field: 'grade',
+				size: 20
+			}
 		}
-	]
+	}
 };
 
 describe('utils', () => {
@@ -228,33 +230,21 @@ describe('utils', () => {
 			expect(perform_check).toThrowError(ERRORS.NOT_AN_ARRAY);
 		});
 
-		test('should throw an error if aggregations are not an array', () => {
-			function perform_check () {
-				utils.prepareFilteredAggregation({
-					aggregations: {},
-					descriptors: []
-				});
-			}
-
-			expect(perform_check).toThrowError(ERRORS.NOT_AN_ARRAY);
-		});
-
 		test('should throw an error if descriptors are not an array', () => {
 			function perform_check () {
-				utils.prepareFilteredAggregation({
-					aggregations: [],
-					descriptors: {}
-				});
+				const aggs = {};
+				const descriptors = {};
+				utils.prepareFilteredAggregation(aggs, descriptors);
 			}
 
 			expect(perform_check).toThrowError(ERRORS.NOT_AN_ARRAY);
 		});
 
 		test('should create an aggregation with the default `all` name if no name is provided', () => {
-			const result = utils.prepareFilteredAggregation({
-				aggregations: mocks.aggregations,
-				descriptors: mocks.single_should_descriptor
-			});
+			const result = utils.prepareFilteredAggregation(
+				mocks.aggregations,
+				mocks.single_should_descriptor
+			);
 
 			expect(result).toEqual({
 				all: {
@@ -278,11 +268,11 @@ describe('utils', () => {
 		});
 
 		test('should create a valid aggregation object with the correct filters applied', () => {
-			const result = utils.prepareFilteredAggregation({
-				aggregations: mocks.aggregations,
-				descriptors: mocks.mixed_descriptors,
-				name: 'south_park_aggs'
-			});
+			const result = utils.prepareFilteredAggregation(
+				mocks.aggregations,
+				mocks.mixed_descriptors,
+				'south_park_aggs'
+			);
 
 			expect(result).toEqual({
 				south_park_aggs: {
