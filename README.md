@@ -588,7 +588,7 @@ const query = new QueryBuilder()
 ```
 
 ##### `buildFunctionScore`
-> Build your basic query. This includes parameters set using `query`, `must`, `should`, `filter`, `must_not`, `aggs`, `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
+> Build your basic query. This includes parameters set using `query`, `must`, `should`, `filter`, `must_not`, `aggs`, `func`, `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
 
 ```javascript
 builder.buildFunctionScore(
