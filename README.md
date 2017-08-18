@@ -407,60 +407,74 @@ const query = new QueryBuilder()
 
 ```javascript
 builder.func(
-  field?: string, // or Type of function
+  field?: string|Object, // or Type of function
   value?: string|Object
 )
 ```
 
 ###### Examples
 
-Simple sort
+Field value factor function
 ```javascript
 const query = new QueryBuilder()
   .query( ... )
-  .sort('age', 'desc')
-  .build();
+  .func('field_value_factor', {
+    field: 'number_of_something',
+    modifier: 'ln2p',
+    factor: 1
+  })
+  .buildFunctionScore();
   
 //- Generates the following query
 {
   from: 0,
   size: 15,
-  query: { ... },
-  sort: [
-    { age: 'desc' }
-  ]
+  query: {
+    function_score: {
+      query: { ... },
+      functions: [{
+        field_value_factor: {
+          field: 'number_of_something',
+          modifier: 'ln2p',
+          factor: 1
+        }
+      }]
+    }
+  }
 }
 ```
 
-Geo distance sort
+Filter function
 ```javascript
 const query = new QueryBuilder()
   .query( ... )
-  .sort('_geo_distance', {
-    coordinates: [ -70, 40 ],
-    distance_type: 'arc',
-    order: 'asc',
-    unit: 'mi',
-    mode: 'min'
+  .func({
+    weight: 100,
+    filter: {
+      match: {
+        state: 'Colorado'
+      }
+    }
   })
-  .build();
+  .buildFunctionScore();
   
 //- Generates the following query
 {
   from: 0,
   size: 15,
-  query: { ... },
-  sort: [
-    {
-      _geo_distance: {
-        coordinates: [ -70, 40 ],
-        distance_type: 'arc',
-        order: 'asc',
-        unit: 'mi',
-        mode: 'min'
-      }
+  query: {
+    function_score: {
+      query: { ... },
+      functions: [{
+        weight: 100,
+        filter: {
+          match: {
+            state: 'Colorado'
+          }
+        }
+      }]
     }
-  ]
+  }
 }
 ```
 
