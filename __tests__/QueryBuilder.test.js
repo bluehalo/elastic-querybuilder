@@ -407,7 +407,7 @@ describe('QueryBuilder', () => {
 			});
 		});
 
-		test('should build simple dis_max with sort options', () => {
+		test('should build simple multi_match with sort options', () => {
 			const query = new QueryBuilder()
 				.sort('_geo_distance', {
 					coordinates: [ -70, 40 ],

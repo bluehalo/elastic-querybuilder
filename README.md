@@ -407,14 +407,14 @@ const query = new QueryBuilder()
 ### Build Functions
 
 ##### `build`
-> Build your basic query. This includes parameters set using `query`, `must`, `should`, `filter`, `must_not`, `aggs`, `filteredAggs`, `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
+> Build your basic query. This includes parameters set using `query`, `must`, `should`, `filter`, `must_not`, `aggs`, `from`, `size`, and `raw`. See [`__tests__`](https://github.com/Asymmetrik/elastic-querybuilder/blob/master/__tests__) for more examples.
 
 ```javascript
 builder.build(
   options?: {
-    // Name for your top level aggregations, default is 'all'
+    // Name for your filtered aggregations, default is 'all'
     name?: string,
-    // Should we add filters to our aggregations, better for accurate facet counts
+    // Add filters to your aggregations, better for accurate facet counts
     filterAggs?: boolean
   }
 ): Object
