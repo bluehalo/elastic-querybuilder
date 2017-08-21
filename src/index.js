@@ -64,7 +64,8 @@ class QueryBuilder extends BaseBuilder {
 	* @return An elasticsearch query
 	*/
 	build (options = {}) {
-		applyRawParameter(this._query, 'query', super.build());
+		const path = this.isBoolean() ? 'query.bool.filter' : 'query';
+		applyRawParameter(this._query, path, super.build());
 		// Add filtered aggregations if we have any
 		if (this.hasAggs() && options.filterAggs) {
 			applyRawParameter(this._query, 'aggs', prepareFilteredAggregation(

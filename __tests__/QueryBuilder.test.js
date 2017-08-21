@@ -57,8 +57,8 @@ describe('QueryBuilder', () => {
 		test('should allow me to add raw parameters to the final query', () => {
 			const query = new QueryBuilder()
 				.raw('min_score', 2)
-				.raw('query.bool.boost', 1.2)
-				.raw('query.bool.minimum_should_match', 1)
+				.raw('query.boost', 1.2)
+				.raw('query.minimum_should_match', 1)
 				.build();
 
 			expect(query).toEqual({
@@ -66,10 +66,9 @@ describe('QueryBuilder', () => {
 				size: 15,
 				min_score: 2,
 				query: {
-					bool: {
-						boost: 1.2,
-						minimum_should_match: 1
-					}
+					match_all: {},
+					boost: 1.2,
+					minimum_should_match: 1
 				}
 			});
 		});
@@ -101,10 +100,14 @@ describe('QueryBuilder', () => {
 				query: {
 					bool: {
 						boost: 1.2,
-						must: [
-							{ match: { name: 'Kenny' }},
-							{ match: { alias: 'Mysterion' }}
-						]
+						filter: {
+							bool: {
+								must: [
+									{ match: { name: 'Kenny' }},
+									{ match: { alias: 'Mysterion' }}
+								]
+							}
+						}
 					}
 				}
 			});
@@ -124,12 +127,16 @@ describe('QueryBuilder', () => {
 				query: {
 					bool: {
 						boost: 1.2,
-						must: [
-							{ match: { name: 'Kenny' }},
-							{ match: { alias: 'Mysterion' }}
-						],
-						should: {
-							match_phrase: { most_common_question: 'Who is Mysterion?' }
+						filter: {
+							bool: {
+								must: [
+									{ match: { name: 'Kenny' }},
+									{ match: { alias: 'Mysterion' }}
+								],
+								should: {
+									match_phrase: { most_common_question: 'Who is Mysterion?' }
+								}
+							}
 						}
 					}
 				}
@@ -461,7 +468,7 @@ describe('QueryBuilder', () => {
 				size: 15,
 				query: {
 					function_score: {
-						query: {},
+						query: { match_all: {}},
 						functions: []
 					}
 				}

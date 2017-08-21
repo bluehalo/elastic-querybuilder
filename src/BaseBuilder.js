@@ -158,6 +158,15 @@ class BaseBuilder {
 	}
 
 	/**
+	* @description Do we have a boolean query that should be filtered
+	* @return {boolean}
+	*/
+	isBoolean () {
+		const query = prepareBoolQuery(this._queries);
+		return !!(query.bool && Object.getOwnPropertyNames(query.bool).length);
+	}
+
+	/**
 	* @description Return our query descriptors
 	* @return {Array<Object>} - Array of query objects
 	*/
@@ -196,7 +205,7 @@ class BaseBuilder {
 	build () {
 		return this._queries.length
 			? prepareBoolQuery(this._queries)
-			: {};
+			: { match_all: {}};
 	}
 
 }

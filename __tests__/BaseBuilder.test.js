@@ -4,7 +4,7 @@ describe('BaseBuilder', () => {
 
 	test('should return an empty object if no queries are made', () => {
 		const query = new BaseBuilder().build();
-		expect(query).toEqual({});
+		expect(query).toEqual({ match_all: {}});
 	});
 
 	test('should create simple queries with query', () => {

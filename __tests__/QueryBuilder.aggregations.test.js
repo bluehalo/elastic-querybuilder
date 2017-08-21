@@ -196,13 +196,17 @@ describe('QueryBuilder - Build Aggregations', () => {
 			size: 15,
 			query: {
 				bool: {
-					must: [
-						{ match: { school: 'South Park Elementary' }},
-						{ match: { grade: '4th' }},
-						{ match: { enemy: 'Cartman' }}
-					],
-					should: {
-						match: { gender: 'female' }
+					filter: {
+						bool: {
+							must: [
+								{ match: { school: 'South Park Elementary' }},
+								{ match: { grade: '4th' }},
+								{ match: { enemy: 'Cartman' }}
+							],
+							should: {
+								match: { gender: 'female' }
+							}
+						}
 					}
 				}
 			},
