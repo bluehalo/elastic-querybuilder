@@ -158,12 +158,11 @@ class BaseBuilder {
 	}
 
 	/**
-	* @description Do we have a boolean query that should be filtered
+	* @description Do we have a should query that should be filtered
 	* @return {boolean}
 	*/
-	isBoolean () {
-		const query = prepareBoolQuery(this._queries);
-		return !!(query.bool && Object.getOwnPropertyNames(query.bool).length);
+	hasShould () {
+		return this._queries.some((query) => query.type === BOOL.SHOULD);
 	}
 
 	/**

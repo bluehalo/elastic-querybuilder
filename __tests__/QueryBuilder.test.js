@@ -100,9 +100,31 @@ describe('QueryBuilder', () => {
 				query: {
 					bool: {
 						boost: 1.2,
+						must: [
+							{ match: { name: 'Kenny' }},
+							{ match: { alias: 'Mysterion' }}
+						]
+					}
+				}
+			});
+		});
+
+		test('should place should filters inside a filter query', () => {
+			const query = new QueryBuilder()
+				.raw('query.bool.boost', 1.2)
+				.should('match', 'name', 'Kenny')
+				.should('match', 'alias', 'Mysterion')
+				.build();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					bool: {
+						boost: 1.2,
 						filter: {
 							bool: {
-								must: [
+								should: [
 									{ match: { name: 'Kenny' }},
 									{ match: { alias: 'Mysterion' }}
 								]
