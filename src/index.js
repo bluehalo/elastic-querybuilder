@@ -51,7 +51,7 @@ class QueryBuilder extends BaseBuilder {
 	* @return {BooleanQueryBuilder} this
 	*/
 	raw (path, value) {
-		invariant(path && value && arguments.length === 2, ERRORS.RAW);
+		invariant(path && value !== undefined && arguments.length === 2, ERRORS.RAW);
 		this._raw.push({ path, value });
 		return this;
 	}
