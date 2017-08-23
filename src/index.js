@@ -51,7 +51,7 @@ class QueryBuilder extends BaseBuilder {
 	* @return {BooleanQueryBuilder} this
 	*/
 	raw (path, value) {
-		invariant(path && value && arguments.length === 2, ERRORS.RAW);
+		invariant(path && value !== undefined && arguments.length === 2, ERRORS.RAW);
 		this._raw.push({ path, value });
 		return this;
 	}
@@ -64,7 +64,10 @@ class QueryBuilder extends BaseBuilder {
 	* @return An elasticsearch query
 	*/
 	build (options = {}) {
-		const path = this.isBoolean() ? 'query.bool.filter' : 'query';
+		// If should is combined with any other boolean query, it will only affect the score
+		// and the query will only match the other bool options.  See the 'should' section
+		// here: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html
+		const path = this.hasShould() ? 'query.bool.filter' : 'query';
 		applyRawParameter(this._query, path, super.build());
 		// Add filtered aggregations if we have any
 		if (this.hasAggs() && options.filterAggs) {
@@ -86,7 +89,7 @@ class QueryBuilder extends BaseBuilder {
 
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
-		return this._query;
+		return Object.assign({}, this._query);
 	}
 
 	/**
@@ -115,7 +118,7 @@ class QueryBuilder extends BaseBuilder {
 
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
-		return this._query;
+		return Object.assign({}, this._query);
 	}
 
 	/**
@@ -150,7 +153,7 @@ class QueryBuilder extends BaseBuilder {
 		}
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
-		return this._query;
+		return Object.assign({}, this._query);
 	}
 
 	/**
@@ -179,7 +182,7 @@ class QueryBuilder extends BaseBuilder {
 		}
 		// Add any raw parameters
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
-		return this._query;
+		return Object.assign({}, this._query);
 	}
 
 }
