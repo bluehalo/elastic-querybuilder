@@ -86,7 +86,7 @@ class QueryBuilder extends BaseBuilder {
 
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
-		return this._query;
+		return Object.assign({}, this._query);
 	}
 
 	/**
@@ -115,7 +115,7 @@ class QueryBuilder extends BaseBuilder {
 
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
-		return this._query;
+		return Object.assign({}, this._query);
 	}
 
 	/**
@@ -150,7 +150,7 @@ class QueryBuilder extends BaseBuilder {
 		}
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
-		return this._query;
+		return Object.assign({}, this._query);
 	}
 
 	/**
@@ -179,7 +179,7 @@ class QueryBuilder extends BaseBuilder {
 		}
 		// Add any raw parameters
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
-		return this._query;
+		return Object.assign({}, this._query);
 	}
 
 }
