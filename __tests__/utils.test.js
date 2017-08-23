@@ -108,6 +108,11 @@ describe('utils', () => {
 			expect(south_park.best.chicken).toEqual('KFC');
 		});
 
+		test('should be able to add an existent but falsy value', () => {
+			const query = {};
+			utils.applyRawParameter(query, 'min_score', 0);
+		});
+
 		test('should add properties to the object if the path does not yet exist', () => {
 			const south_park = {};
 			utils.applyRawParameter(south_park, 'hare_club_for_men.rivals', ['Bill Donahue', 'Pope Benedict XVI']);

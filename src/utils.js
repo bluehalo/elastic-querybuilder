@@ -25,7 +25,7 @@ const getAggName = (type, field) => {
 * @param {*} value - value to add to the object
 */
 const applyRawParameter = (object, path, value) => {
-	invariant((object && path && value), ERRORS.APPLY_RAW_PARAMETER);
+	invariant((object && path !== undefined && value !== undefined), ERRORS.APPLY_RAW_PARAMETER);
 	const props = path.split('.');
 
 	if (props.length > 1) {

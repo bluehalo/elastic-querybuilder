@@ -56,7 +56,7 @@ describe('QueryBuilder', () => {
 
 		test('should allow me to add raw parameters to the final query', () => {
 			const query = new QueryBuilder()
-				.raw('min_score', 2)
+				.raw('min_score', 0)
 				.raw('query.boost', 1.2)
 				.raw('query.minimum_should_match', 1)
 				.build();
@@ -64,7 +64,7 @@ describe('QueryBuilder', () => {
 			expect(query).toEqual({
 				from: 0,
 				size: 15,
-				min_score: 2,
+				min_score: 0,
 				query: {
 					match_all: {},
 					boost: 1.2,
