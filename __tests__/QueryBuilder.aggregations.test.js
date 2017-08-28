@@ -158,6 +158,53 @@ describe('QueryBuilder - Build Aggregations', () => {
 		});
 	});
 
+	test('should build multiple nested aggregations with the same path', () => {
+		const query = new QueryBuilder()
+			.query('match_all')
+			/**
+			* Note this is not the ideal way to build these, you should just
+			* add the locations.state aggregation inside the first nesting. However,
+			* sometimes these are built dynamically and from config files, and may not
+			* be structured in a way that makes that easy, so building should be aware
+			* that there is already an agg at the same path and merge the aggregations
+			* instead of overriding them.
+			*/
+			.aggs('nested', { path: 'locations' }, builder => builder
+				.aggs('terms', 'locations.city')
+			)
+			.aggs('nested', { path: 'locations' }, builder => builder
+				.aggs('terms', 'locations.state')
+			)
+			.build();
+
+		expect(query).toEqual({
+			from: 0,
+			size: 15,
+			query: {
+				match_all: {}
+			},
+			aggs: {
+				locations: {
+					nested: {
+						path: 'locations'
+					},
+					aggs: {
+						'locations.city': {
+							terms: {
+								field: 'locations.city'
+							}
+						},
+						'locations.state': {
+							terms: {
+								field: 'locations.state'
+							}
+						}
+					}
+				}
+			}
+		});
+	});
+
 	test('should allow filters to be added to a normal aggregation', () => {
 		const query = new QueryBuilder()
 			.must('match', 'school', 'South Park Elementary')
