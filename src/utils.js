@@ -157,7 +157,13 @@ const saveAggs = (...params) => {
 		[type]: makeQuery(field, undefined, options)
 	}, nested);
 
-	collection[getAggName(type, field)] = agg;
+	const name = getAggName(type, field);
+	// Handle nested aggregations with the same path, which ends up being the same name
+	if (nested.aggs && collection[name] && collection[name].aggs) {
+		Object.assign(collection[name].aggs, nested.aggs);
+	} else {
+		collection[name] = agg;
+	}
 };
 
 /**
