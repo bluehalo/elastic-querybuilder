@@ -109,9 +109,10 @@ describe('QueryBuilder', () => {
 			});
 		});
 
-		test('should place should filters inside a filter query', () => {
+		test('should place should filters inside a filter query if there is a must', () => {
 			const query = new QueryBuilder()
 				.raw('query.bool.boost', 1.2)
+				.must('match', 'city', 'South Park')
 				.should('match', 'name', 'Kenny')
 				.should('match', 'alias', 'Mysterion')
 				.build();
@@ -124,12 +125,37 @@ describe('QueryBuilder', () => {
 						boost: 1.2,
 						filter: {
 							bool: {
+								must: {
+									match: { city: 'South Park' }
+								},
 								should: [
 									{ match: { name: 'Kenny' }},
 									{ match: { alias: 'Mysterion' }}
 								]
 							}
 						}
+					}
+				}
+			});
+		});
+
+		test('should place should filters at the top level if there are no other queries', () => {
+			const query = new QueryBuilder()
+				.raw('query.bool.boost', 1.2)
+				.should('match', 'name', 'Kenny')
+				.should('match', 'alias', 'Mysterion')
+				.build();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					bool: {
+						boost: 1.2,
+						should: [
+							{ match: { name: 'Kenny' }},
+							{ match: { alias: 'Mysterion' }}
+						]
 					}
 				}
 			});
