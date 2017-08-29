@@ -167,7 +167,6 @@ class BaseBuilder {
 			return all;
 		}, []);
 		return types.indexOf(BOOL.SHOULD) > -1 && types.length > 1;
-		// return this._queries.some((query) => query.type === BOOL.SHOULD);
 	}
 
 	/**
