@@ -161,8 +161,12 @@ class BaseBuilder {
 	* @description Do we have a should query that should be filtered
 	* @return {boolean}
 	*/
-	hasShould () {
-		return this._queries.some((query) => query.type === BOOL.SHOULD);
+	shouldUseFilter () {
+		const types = this._queries.reduce((all, query) => {
+			if (all.indexOf(query.type) === -1) { all.push(query.type); }
+			return all;
+		}, []);
+		return types.indexOf(BOOL.SHOULD) > -1 && types.length > 1;
 	}
 
 	/**
