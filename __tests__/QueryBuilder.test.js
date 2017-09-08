@@ -697,6 +697,50 @@ describe('QueryBuilder', () => {
 			});
 		});
 
+		test('should place should filters inside a filter query if there is a must', () => {
+			const query = new QueryBuilder()
+				.must('match', 'city', 'South Park')
+				.should('match', 'name', 'Kenny')
+				.should('match', 'alias', 'Mysterion')
+				.func('field_value_factor', { field: 'state' })
+				.buildFunctionScore();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: {
+							bool: {
+								filter: {
+									bool: {
+										must: {
+											match: {
+												city: 'South Park'
+											}
+										},
+										should: [{
+											match: {
+												name: 'Kenny'
+											}
+										}, {
+											match: {
+												alias: 'Mysterion'
+											}
+										}]
+									}
+								}
+							}
+						},
+						functions: [{
+							field_value_factor: {
+								field: 'state'
+							}
+						}]
+					}
+				}
+			});
+		});
 	});
 
 });

@@ -165,7 +165,11 @@ class QueryBuilder extends BaseBuilder {
 	*/
 	buildFunctionScore (options = {}) {
 		// Apply all of our queries
-		applyRawParameter(this._query, 'query.function_score.query', super.build());
+		const queryPath = this.shouldUseFilter()
+			? 'query.function_score.query.bool.filter'
+			: 'query.function_score.query';
+
+		applyRawParameter(this._query, queryPath, super.build());
 		// Apply any functions
 		applyRawParameter(this._query, 'query.function_score.functions', this.getFuncs());
 		// Add filtered aggregations if we have any
