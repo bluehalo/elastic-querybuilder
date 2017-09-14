@@ -69,6 +69,7 @@ class QueryBuilder extends BaseBuilder {
 		// here: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html
 		const path = this.shouldUseFilter() ? 'query.bool.filter' : 'query';
 		applyRawParameter(this._query, path, super.build());
+
 		// Add filtered aggregations if we have any
 		if (this.hasAggs() && options.filterAggs) {
 			applyRawParameter(this._query, 'aggs', prepareFilteredAggregation(
@@ -77,6 +78,7 @@ class QueryBuilder extends BaseBuilder {
 				options.name
 			));
 		}
+
 		// Add aggregations if we have any
 		else if (this.hasAggs()) {
 			applyRawParameter(this._query, 'aggs', this.getAggs());
@@ -111,9 +113,16 @@ class QueryBuilder extends BaseBuilder {
 				super.build(),
 				{ dis_max: options }
 			]);
-		} else {
-			// Add the options to our query
+		}
+
+		// Add the options to our query
+		else {
 			applyRawParameter(this._query, 'query.dis_max', options);
+		}
+
+		// Add our sorting options
+		if (this.hasSort()) {
+			applyRawParameter(this._query, 'sort', this.getSorts());
 		}
 
 		// finally add any raw parameter that may exist
@@ -142,8 +151,10 @@ class QueryBuilder extends BaseBuilder {
 				super.build(),
 				{ multi_match: options }
 			]);
-		} else {
-			// Add the options to our query
+		}
+
+		// Add the options to our query
+		else {
 			applyRawParameter(this._query, 'query.multi_match', options);
 		}
 
@@ -151,6 +162,7 @@ class QueryBuilder extends BaseBuilder {
 		if (this.hasSort()) {
 			applyRawParameter(this._query, 'sort', this.getSorts());
 		}
+
 		// finally add any raw parameter that may exist
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
 		return Object.assign({}, this._query);
@@ -170,8 +182,10 @@ class QueryBuilder extends BaseBuilder {
 			: 'query.function_score.query';
 
 		applyRawParameter(this._query, queryPath, super.build());
+
 		// Apply any functions
 		applyRawParameter(this._query, 'query.function_score.functions', this.getFuncs());
+
 		// Add filtered aggregations if we have any
 		if (this.hasAggs() && options.filterAggs) {
 			applyRawParameter(this._query, 'aggs', prepareFilteredAggregation(
@@ -180,10 +194,17 @@ class QueryBuilder extends BaseBuilder {
 				options.name
 			));
 		}
+
 		// Add aggregations if we have any
 		else if (this.hasAggs()) {
 			applyRawParameter(this._query, 'aggs', this.getAggs());
 		}
+
+		// Add our sorting options
+		if (this.hasSort()) {
+			applyRawParameter(this._query, 'sort', this.getSorts());
+		}
+
 		// Add any raw parameters
 		this._raw.forEach((param) => applyRawParameter(this._query, param.path, param.value));
 		return Object.assign({}, this._query);
