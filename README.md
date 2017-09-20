@@ -35,6 +35,13 @@ builder.from(from: number): QueryBuilder
 builder.size(size: number): QueryBuilder
 ```
 
+##### `trackScores`
+> Sets the track_scores option.
+
+```javascript
+builder.trackScores(trackScores: boolean): QueryBuilder
+```
+
 ##### `raw`
 > Allows to set a value on the query object at your path.
 

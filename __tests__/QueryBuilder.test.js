@@ -52,6 +52,18 @@ describe('QueryBuilder', () => {
 		expect(builder._query.size).toEqual(newSize);
 	});
 
+	test('should be able set the track_score settings', () => {
+		const builder = new QueryBuilder();
+		const trackScores = true;
+		// Set the stractScore
+		builder.trackScores(trackScores);
+		expect(builder._query.track_scores).toEqual(trackScores);
+		// Update them without a value and make sure they do not get set to undefined
+		builder.trackScores();
+		expect(builder._query.track_scores).toEqual(trackScores);
+	});
+
+
 	describe('build', () => {
 
 		test('should allow me to add raw parameters to the final query', () => {
@@ -81,6 +93,22 @@ describe('QueryBuilder', () => {
 			expect(query).toEqual({
 				from: 0,
 				size: 15,
+				query: {
+					match_none: {}
+				}
+			});
+		});
+
+		test('should handle building query with track_scores', () => {
+			const query = new QueryBuilder()
+				.trackScores(true)
+				.query('match_none')
+				.build();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				track_scores: true,
 				query: {
 					match_none: {}
 				}
@@ -310,6 +338,37 @@ describe('QueryBuilder', () => {
 			});
 		});
 
+		test('should build a dis_max query with sort and options', () => {
+			const query = new QueryBuilder()
+				.sort('number_detentions', { order: 'desc' })
+				.buildDisMax({
+					queries: mocks.dis_max_queries,
+					tie_breaker: 1.2,
+					boost: 2
+				});
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					dis_max: {
+						queries: [
+							{ term: { age: 31 }},
+							{ term: { age: 32 }},
+							{ term: { age: 33 }}
+						],
+						tie_breaker: 1.2,
+						boost: 2
+					}
+				},
+				sort: [{
+					number_detentions: {
+						order: 'desc'
+					}
+				}]
+			});
+		});
+
 		test('should build a dis_max query with filters and options', () => {
 			const query = new QueryBuilder()
 				.must('match', 'enemy', 'Cartman')
@@ -520,6 +579,26 @@ describe('QueryBuilder', () => {
 						functions: []
 					}
 				}
+			});
+		});
+
+		test('should add sorts to a functino query', () => {
+			const query = new QueryBuilder()
+				.sort('_score', {})
+				.buildFunctionScore();
+
+			expect(query).toEqual({
+				from: 0,
+				size: 15,
+				query: {
+					function_score: {
+						query: { match_all: {}},
+						functions: []
+					}
+				},
+				sort: [{
+					_score: {}
+				}]
 			});
 		});
 
