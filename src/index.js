@@ -45,6 +45,16 @@ class QueryBuilder extends BaseBuilder {
 	}
 
 	/**
+	* @description Sets the track scores
+	* @param {number} trackScores - Boolean value for tracking score
+	* @return {QueryBuilder} this
+	*/
+	trackScores (trackScores) {
+		if (trackScores !== undefined) { this._query.track_scores = trackScores; }
+		return this;
+	}
+
+	/**
 	* @description Add a raw parameter to any part of your query
 	* @param {string} path - The path to add the value at
 	* @param {*} value - Value to add at the path
