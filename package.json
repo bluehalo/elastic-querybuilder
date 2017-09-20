@@ -1,6 +1,6 @@
 {
   "name": "@asymmetrik/elastic-querybuilder",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "description": "A query builder for Elasticsearch.",
   "main": "src/index.js",
   "repository": "https://github.com/Asymmetrik/elastic-querybuilder.git",
