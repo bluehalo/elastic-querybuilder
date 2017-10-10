@@ -55,7 +55,7 @@ describe('QueryBuilder', () => {
 	test('should be able set the track_score settings', () => {
 		const builder = new QueryBuilder();
 		const trackScores = true;
-		// Set the stractScore
+		// Set the trackScore
 		builder.trackScores(trackScores);
 		expect(builder._query.track_scores).toEqual(trackScores);
 		// Update them without a value and make sure they do not get set to undefined
@@ -63,6 +63,37 @@ describe('QueryBuilder', () => {
 		expect(builder._query.track_scores).toEqual(trackScores);
 	});
 
+	describe('clone', () => {
+
+		test('should be able to clone the builder', () => {
+			const builder = new QueryBuilder();
+			const clone = builder.clone();
+			expect(clone).toBeInstanceOf(QueryBuilder);
+			expect(clone).not.toBe(builder);
+		});
+
+		test('should have the same output on the original and clone but not be the same object', () => {
+			const builder = new QueryBuilder()
+				.should('match', 'alias', 'Mysterion')
+				.from(15)
+				.size(15);
+
+			const clone = builder.clone();
+			expect(clone.build()).toEqual(builder.build());
+		});
+
+		test('should be able to modify them separately after cloning them', () => {
+			const builder = new QueryBuilder().from(15).size(15);
+			const clone = builder.clone();
+
+			expect(clone).not.toBe(builder);
+			expect(clone.build()).toEqual(builder.build());
+
+			builder.should('match', 'alias', 'Mysterion');
+			expect(clone.build()).not.toEqual(builder.build());
+		});
+
+	});
 
 	describe('build', () => {
 
