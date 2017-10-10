@@ -67,6 +67,17 @@ class QueryBuilder extends BaseBuilder {
 	}
 
 	/**
+	* @description Clone the current builder
+	* @return {QueryBuilder} this
+	*/
+	clone () {
+		return Object.assign(
+			Object.create(Object.getPrototypeOf(this)),
+			JSON.parse(JSON.stringify(this))
+		);
+	}
+
+	/**
 	* @description Build our boolean ES query
 	* @param {Object} options
 	* @param {boolean} options.name - Name for your filtered aggregations, default is 'all'
