@@ -12,7 +12,7 @@ const last = (collection) => {
 	return collection.length ? collection[collection.length - 1] : undefined;
 };
 
-const getAggName = (type, field) => {
+const getAggName = (type, field = {}) => {
 	return typeof field !== 'string'
 		? field.path || field.field || `agg_${type}`
 		: field;
